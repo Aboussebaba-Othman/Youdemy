@@ -1,29 +1,19 @@
-
 <?php
-
+// login.php
+session_start();
 require_once("../../../vendor/autoload.php");
 use App\Controllers\Auth\LoginController;
 
-
-
-if(isset($_POST["submit"]))
-{
-
-    if(empty($_POST["email"]) && empty($_POST["password"]))
-    {
-        echo "email or password is empty";
-    }
-    else{
-        $email = $_POST["email"];
-        $password = $_POST["password"];
-
-        $loginController = new LoginController();
-        $loginController->login($email, $password);
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $loginController = new LoginController();
+    $result = $loginController->login($_POST['email'], $_POST['password']);
+    
+    if ($result['status'] === 'error') {
+        $error_message = $result['message'];
     }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,6 +24,11 @@ if(isset($_POST["submit"]))
     <title>Youdemy - Login</title>
 </head>
 <body>
+<?php if (isset($error_message)): ?>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <span class="block sm:inline"><?php echo htmlspecialchars($error_message); ?></span>
+    </div>
+<?php endif; ?>
 <section class="bg-gray-50 dark:bg-gray-800">
     <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">

@@ -1,3 +1,15 @@
+<?php
+require_once("../../../vendor/autoload.php");
+require '../../../src/Controllers/Auth/RegisterController.php';
+
+use App\Controllers\Auth\RegisterController;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $registerController = new RegisterController();
+    $registerController->register($_POST);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,8 +46,8 @@
                             <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rôle</label>
                             <select name="role_id" id="role" onchange="displayInput()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                                 <option value="">Select Rôle</option>
-                                <option value="Étudiant">Étudiant</option>
-                                <option value="Enseignant">Enseignant</option>
+                                <option value="3">Étudiant</option>
+                                <option value="2">Enseignant</option>
                             </select>
                         </div>
                     </div>
@@ -71,10 +83,10 @@
         const skillsContainer = document.getElementById('education-level-container');
         const companyContainer = document.getElementById('specialty-container');
 
-        if (role === "Étudiant") {
+        if (role === "3") {
             skillsContainer.classList.remove('hidden');
             companyContainer.classList.add('hidden');
-        } else if (role === "Enseignant") { 
+        } else if (role === "2") { 
             companyContainer.classList.remove('hidden');
             skillsContainer.classList.add('hidden');
         } else {
