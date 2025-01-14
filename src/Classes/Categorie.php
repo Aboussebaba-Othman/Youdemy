@@ -5,16 +5,16 @@ namespace App\Classes;
 
 class Categorie {
     public $id;
-    public $titre;
+    public $title;
     
-    public function __construct($id, $titre) {
+    public function __construct($id, $title) {
             $this->id = $id;
-            $this->titre = $titre;
+            $this->title = $title;
          
     }
 
 
     public function getId() { return $this->id; }
-    public function getName() { return $this->titre; }
+    public function getName() { return $this->title; }
     
 }
