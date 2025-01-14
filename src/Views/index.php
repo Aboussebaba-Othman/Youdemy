@@ -61,8 +61,8 @@
                 </div>
     
                 <div class="hidden md:flex items-center space-x-4">
-                    <button class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md">Login</button>
-                    <button class="px-6 py-2 bg-primary text-base-300 rounded-full hover:bg-secondary transition-colors duration-200 shadow-md hover:shadow-lg">Register</button>
+                    <button class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md"><a href="auth/login.php">Login</a></button>
+                    <button class="px-6 py-2 bg-primary text-base-300 rounded-full hover:bg-secondary transition-colors duration-200 shadow-md hover:shadow-lg"><a href="auth/register.php">Register</a></button>
                 </div>
     
                 <div class="md:hidden">
