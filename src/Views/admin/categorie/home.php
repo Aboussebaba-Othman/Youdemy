@@ -4,25 +4,20 @@ require_once "../../../../vendor/autoload.php";
 use App\Controllers\Admin\CategoryController;
 
 session_start();
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    try {
-        $categoryController = new CategoryController();
-        $id = $_POST['id'];
-        
-        if ($categoryController->deleteCategory($id)) {
-            $_SESSION['success'] = "Category deleted successfully";
-        } else {
-            $_SESSION['error'] = "Failed to delete category";
-        }
-    } catch (Exception $e) {
-        $_SESSION['error'] = "Error: " . $e->getMessage();
-    }
-}
 
 try {
     $categoryController = new CategoryController();
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['delete']) && isset($_POST['id'])) {
+            $id = intval($_POST['id']);
+            if ($categoryController->deleteCategory($id)) {
+                $_SESSION['success'] = "Category deleted successfully.";
+            } else {
+                $_SESSION['error'] = "Failed to delete category.";
+            }
+        }
+        
         if (isset($_POST['nom_category'])) {
             if (isset($_POST['id']) && !empty($_POST['id'])) {
                 $categoryController->updateCategory(
@@ -39,6 +34,8 @@ try {
             exit();
         }
     }
+    
+    
     
     $categories = $categoryController->getCategories();
     
@@ -136,19 +133,23 @@ try {
             <div class="border rounded-lg p-4">
                 <div class="flex justify-between items-center mb-2">
                     <h4 class="font-semibold"><?= htmlspecialchars($category['title']) ?></h4>
+                
                     <div class="flex space-x-2">
-                        <button onclick="openModalEdit('editCategoryModal', <?= $category['id'] ?>, '<?= htmlspecialchars($category['title']) ?>')" 
-                                class="text-blue-600 hover:text-blue-900">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <form action="" method="POST" class="inline" 
-                              onsubmit="return confirm('Are you sure you want to delete this category?');">
-                            <input type="hidden" name="id" value="<?= $category['id'] ?>">
-                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </div>
+    <button onclick="openModalEdit('editCategoryModal', <?= $category['id'] ?>, '<?= htmlspecialchars($category['title']) ?>')" 
+            class="text-blue-600 hover:text-blue-900">
+        <i class="fas fa-edit"></i>
+    </button>
+
+    <form action="" method="POST" class="inline" 
+          onsubmit="return confirm('Are you sure you want to delete this category?');">
+        <input type="hidden" name="id" value="<?= $category['id'] ?>">
+        <input type="hidden" name="delete" value="1"> 
+        <button type="submit" class="text-red-600 hover:text-red-900">
+            <i class="fas fa-trash"></i>
+        </button>
+    </form>
+</div>
+
                 </div>
                 <p class="text-sm text-gray-600"><?= $category['course_count'] ?? 0 ?> courses</p>
             </div>
