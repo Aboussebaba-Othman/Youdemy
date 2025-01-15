@@ -9,28 +9,32 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex h-screen">
-        <div class="bg-gray-800 text-white w-64 flex-shrink-0">
-            <div class="p-4">
-                <h1 class="text-2xl font-bold">Youdemy Admin</h1>
+    <div class="w-64 bg-white shadow-md">
+            <div class="p-5 border-b">
+                <h1 class="text-2xl font-bold text-blue-600">Youdemy Admin</h1>
             </div>
             <nav class="mt-4">
-                <a href="user.html" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                <a href="../home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>Tableau de Bord</span>
+                </a>
+                <a href="../user/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-users w-6"></i>
                     <span>Gestion Utilisateurs</span>
                 </a>
-                <a href="cour.html" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                <a href="../cour/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-book w-6"></i>
                     <span>Gestion Cours</span>
                 </a>
-                <a href="tag.html" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                <a href="../tag/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-tags w-6"></i>
                     <span>Gestion Tags</span>
                 </a>
-                <a href="categorie.html" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                <a href="../categorie/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-folder w-6"></i>
                     <span>Gestion Catégories</span>
                 </a>
-                <a href="validation.html" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                <a href="../validation/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-user-check w-6"></i>
                     <span>Validation Enseignants</span>
                 </a>
