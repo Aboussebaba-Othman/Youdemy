@@ -1,15 +1,22 @@
 <?php
-// login.php
 session_start();
 require_once("../../../vendor/autoload.php");
 use App\Controllers\Auth\LoginController;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $loginController = new LoginController();
-    $result = $loginController->login($_POST['email'], $_POST['password']);
-    
-    if ($result['status'] === 'error') {
-        $error_message = $result['message'];
+    try {
+        $loginController = new LoginController();
+        $result = $loginController->login(
+            $_POST['email'] ?? '', 
+            $_POST['password'] ?? ''
+        );
+        
+        if ($result['status'] === 'error') {
+            $error_message = $result['message'];
+        }
+    } catch (\Exception $e) {
+        error_log("Login error: " . $e->getMessage());
+        $error_message = "An unexpected error occurred. Please try again later.";
     }
 }
 ?>
