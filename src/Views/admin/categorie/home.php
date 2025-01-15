@@ -1,37 +1,49 @@
 <?php
-require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once "../../../../vendor/autoload.php";
 
 use App\Controllers\Admin\CategoryController;
 
 session_start();
-
-try {
-    $categoryController = new CategoryController();
-    $categories = $categoryController->getCategories();
-} catch (Exception $e) {
-    $_SESSION['error'] = "Error: " . $e->getMessage();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nom_category'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     try {
         $categoryController = new CategoryController();
+        $id = $_POST['id'];
         
-        
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit();
+        if ($categoryController->deleteCategory($id)) {
+            $_SESSION['success'] = "Category deleted successfully";
+        } else {
+            $_SESSION['error'] = "Failed to delete category";
+        }
     } catch (Exception $e) {
         $_SESSION['error'] = "Error: " . $e->getMessage();
     }
 }
 
-$id = $_GET['id'] ?? null;
-$category = null;
-if ($id) {
-    try {
-        $category = $categoryController->getCategoryById($id);
-    } catch (Exception $e) {
-        $_SESSION['error'] = "Error fetching category: " . $e->getMessage();
+try {
+    $categoryController = new CategoryController();
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['nom_category'])) {
+            if (isset($_POST['id']) && !empty($_POST['id'])) {
+                $categoryController->updateCategory(
+                    trim($_POST['id']), 
+                    trim($_POST['nom_category'])
+                );
+                $_SESSION['success'] = "Category updated successfully";
+            } else {
+                $categoryController->createCategory(trim($_POST['nom_category']));
+                $_SESSION['success'] = "Category created successfully";
+            }
+            
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit();
+        }
     }
+    
+    $categories = $categoryController->getCategories();
+    
+} catch (Exception $e) {
+    $_SESSION['error'] = $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -97,7 +109,7 @@ if ($id) {
             <section id="categories" class="bg-white rounded-lg shadow">
         <div class="p-4 border-b flex justify-between items-center">
             <h3 class="text-lg font-semibold">Gestion des Catégories</h3>
-            <a href="/admin/categorie/create" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"  onclick="openModal('addCategoryModal')">
+            <a class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"  onclick="openModal('addCategoryModal')">
                 <i class="fas fa-plus mr-2"></i>Nouvelle Catégorie
             </a>
         </div>
@@ -118,31 +130,31 @@ if ($id) {
 
         
 <div class="p-4">
-    <?php if (!empty($categories)): ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <?php foreach ($categories as $category): ?>
-                <div class="border rounded-lg p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h4 class="font-semibold"><?= htmlspecialchars($category['title']) ?></h4>
-                        <div class="flex space-x-2">
-                            <button onclick="openModalEdit('editCategoryModal', <?= $category['id'] ?>, '<?= htmlspecialchars($category['title']) ?>')" 
-                                    class="text-blue-600 hover:text-blue-900">
-                                <i class="fas fa-edit"></i>
+<?php if (!empty($categories)): ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <?php foreach ($categories as $category): ?>
+            <div class="border rounded-lg p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-semibold"><?= htmlspecialchars($category['title']) ?></h4>
+                    <div class="flex space-x-2">
+                        <button onclick="openModalEdit('editCategoryModal', <?= $category['id'] ?>, '<?= htmlspecialchars($category['title']) ?>')" 
+                                class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <form action="" method="POST" class="inline" 
+                              onsubmit="return confirm('Are you sure you want to delete this category?');">
+                            <input type="hidden" name="id" value="<?= $category['id'] ?>">
+                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
                             </button>
-                            <form action="delete.php" method="POST" class="inline" 
-                                  onsubmit="return confirm('Are you sure you want to delete this category?');">
-                                <input type="hidden" name="id" value="<?= $category['id'] ?>">
-                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
+                        </form>
                     </div>
-                    <p class="text-sm text-gray-600"><?= $category['course_count'] ?? 0 ?> courses</p>
                 </div>
-            <?php endforeach; ?>
+                <p class="text-sm text-gray-600"><?= $category['course_count'] ?? 0 ?> courses</p>
             </div>
-            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
         </div>
 
         
@@ -166,22 +178,33 @@ if ($id) {
             </div>
         </div>
 
-        <div id="editCategoryModal" class="hidden flex justify-center items-center min-h-screen">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h1 class="text-2xl font-semibold mb-4">Edit Category</h1>
-                <form action="" method="POST">
-                    <input type="hidden" name="id" value="<?= $id; ?>">
-                    <div class="mb-4">
-                        <label for="categoryName" class="block text-gray-700 font-medium mb-2">Category Name</label>
-                        <input type="text" id="categoryName" name="nom_category" value="<?= htmlspecialchars($category['nom']); ?>" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition duration-300" onclick="closeModalEdit('editCategoryModal')">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300">Save</button>
-                    </div>
-                </form>
+    <div id="editCategoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white w-96 p-6 rounded-lg shadow-lg">
+        <h2 class="text-xl font-bold mb-4">Edit Category</h2>
+        <form action="" method="POST">
+            <input type="hidden" name="id" id="editCategoryId">
+            <div class="mb-4">
+                <label for="editCategoryName" class="block text-gray-700 font-medium mb-2">Category Name</label>
+                <input type="text" 
+                       id="editCategoryName" 
+                       name="nom_category" 
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       required>
             </div>
-        </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" 
+                        class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition duration-300" 
+                        onclick="closeModal('editCategoryModal')">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300">
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
     </div>
 
     <script>
@@ -200,6 +223,12 @@ if ($id) {
         function closeModalEdit(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
+        function openModalEdit(modalId, categoryId, categoryTitle) {
+    const modal = document.getElementById(modalId);
+    document.getElementById('editCategoryId').value = categoryId;
+    document.getElementById('editCategoryName').value = categoryTitle;
+    modal.classList.remove('hidden');
+}
     </script> 
 </body>
 </html>
