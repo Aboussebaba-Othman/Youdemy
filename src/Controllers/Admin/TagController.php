@@ -16,7 +16,7 @@ class TagController
     public function index() 
     {
         $tags = $this->tagModel->getAllTags();
-        include __DIR__ . '/../../Views/admin/tag/home.php';
+        include __DIR__ . '/../../admin/tag/home.php';
     }
 
     public function createMultipleTags()
@@ -26,7 +26,7 @@ class TagController
             if (!empty($tags)) {
                 try {
                     $this->tagModel->addTags($tags);
-                    header('Location: ../../Views/admin/tag/home.php');
+                    header('Location: ../../admin/tag/home.php');
                     exit;
                 } catch (Exception $e) {
                     echo "Error: " . $e->getMessage();
@@ -40,7 +40,7 @@ class TagController
         if (isset($id)) {
             try {
                 $this->tagModel->deleteTag($id);
-                header('Location: ../../Views/admin/tag/home.php');
+                header('Location: ../../admin/tag/home.php');
                 exit;
             } catch (Exception $e) {
                 echo "Error: " . $e->getMessage();

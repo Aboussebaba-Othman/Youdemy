@@ -15,6 +15,10 @@
                 <h1 class="text-2xl font-bold text-blue-600">Youdemy Admin</h1>
             </div>
             <nav class="mt-4">
+                <a href="" class="flex items-center px-4 py-3 hover:bg-gray-700">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>Tableau de Bord</span>
+                </a>
                 <a href="user/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-users w-6"></i>
                     <span>Gestion Utilisateurs</span>

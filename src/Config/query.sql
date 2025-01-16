@@ -14,7 +14,7 @@ CREATE TABLE Users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    status VARCHAR(50) NOT NULL,
+    status	enum('active', 'suspended', 'pending'),
     role_id INT NOT NULL,
     FOREIGN KEY (role_id) REFERENCES Roles(id)
 );
