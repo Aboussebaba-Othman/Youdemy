@@ -86,9 +86,20 @@ $tags = $tagModel->getAllTags();
         </div>
 
         <div class="flex-1 overflow-auto">
-            <header class="bg-white shadow">
+        <header class="bg-white shadow">
                 <div class="flex justify-between items-center px-6 py-4">
-                    <h2 class="text-xl font-semibold">Gestion des Tags</h2>
+                    <h2 class="text-xl font-semibold">Pages de Gestion</h2>
+                    <div class="flex items-center space-x-4">
+                        <button class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span class="text-gray-600 text-sm">A</span>
+                            </div>
+                            <span class="text-gray-700">Admin</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 

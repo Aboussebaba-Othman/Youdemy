@@ -95,7 +95,9 @@ try {
                             <i class="fas fa-bell"></i>
                         </button>
                         <div class="flex items-center">
-                            <img src="/api/placeholder/32/32" alt="Admin" class="w-8 h-8 rounded-full mr-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span class="text-gray-600 text-sm">A</span>
+                            </div>
                             <span class="text-gray-700">Admin</span>
                         </div>
                     </div>

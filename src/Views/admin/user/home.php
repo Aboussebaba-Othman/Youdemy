@@ -38,16 +38,16 @@ $users = $userController->fetchUsers();
 </head>
 <body class="bg-gray-50">
     <div class="flex h-screen">
-        <div class="bg-gray-800 text-white w-64 flex-shrink-0">
-            <div class="p-4">
-                <h1 class="text-2xl font-bold">Youdemy Admin</h1>
+    <div class="w-64 bg-white shadow-md">
+            <div class="p-5 border-b">
+                <h1 class="text-2xl font-bold text-blue-600">Youdemy Admin</h1>
             </div>
             <nav class="mt-4">
                 <a href="../home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-tachometer-alt mr-3"></i>
                     <span>Tableau de Bord</span>
                 </a>
-                <a href="home.php" class="flex items-center px-4 py-3 bg-gray-700">
+                <a href="../user/home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-users w-6"></i>
                     <span>Gestion Utilisateurs</span>
                 </a>
@@ -71,15 +71,17 @@ $users = $userController->fetchUsers();
         </div>
 
         <div class="flex-1 overflow-auto">
-            <header class="bg-white shadow">
+        <header class="bg-white shadow">
                 <div class="flex justify-between items-center px-6 py-4">
-                    <h2 class="text-xl font-semibold">Gestion des Utilisateurs</h2>
+                    <h2 class="text-xl font-semibold">Pages de Gestion</h2>
                     <div class="flex items-center space-x-4">
                         <button class="text-gray-500 hover:text-gray-700">
                             <i class="fas fa-bell"></i>
                         </button>
                         <div class="flex items-center">
-                            <img src="/api/placeholder/32/32" alt="Admin" class="w-8 h-8 rounded-full mr-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span class="text-gray-600 text-sm">A</span>
+                            </div>
                             <span class="text-gray-700">Admin</span>
                         </div>
                     </div>

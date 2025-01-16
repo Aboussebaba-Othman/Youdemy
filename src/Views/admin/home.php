@@ -85,8 +85,8 @@
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-gray-500">Revenus</h3>
-                            <p class="text-2xl font-bold">€125,000</p>
+                            <h3 class="text-gray-500">Students</h3>
+                            <p class="text-2xl font-bold">45</p>
                         </div>
                         <i class="fas fa-euro-sign text-yellow-500 text-3xl"></i>
                     </div>
@@ -132,27 +132,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('courseChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Développement Web', 'Data Science', 'Design', 'Marketing'],
-                datasets: [{
-                    data: [45, 25, 15, 15],
-                    backgroundColor: ['#3B82F6', '#10B981', '#6366F1', '#F43F5E']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    </script>
+   
 </body>
 </html>

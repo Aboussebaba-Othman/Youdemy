@@ -1,17 +1,39 @@
+<?php
+require_once "../../../../vendor/autoload.php";
+use App\Controllers\Admin\CourseController;
+
+$course = new CourseController();
+$courses = $course->index();
+
+if (isset($_GET['action']) && $_GET['action'] === 'deleteCourse' && isset($_GET['id'])) {
+    $courseId = intval($_GET['id']);
+    try {
+        $course->deleteControllerCourse($courseId);
+        $_SESSION['success_message'] = "Cours supprimé avec succès";
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = "Erreur lors de la suppression du cours : " . $e->getMessage();
+    }
+    header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Cours - Youdemy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white shadow-md rounded-lg">
+<body class="bg-gray-50">
 
-            <!-- Navigation -->
+    <div class="flex h-screen">
+        <div class="w-64 bg-white shadow-md">
+            <div class="p-5 border-b">
+                <h1 class="text-2xl font-bold text-blue-600">Youdemy Admin</h1>
+            </div>
             <nav class="mt-4">
                 <a href="../home.php" class="flex items-center px-4 py-3 hover:bg-gray-700">
                     <i class="fas fa-tachometer-alt mr-3"></i>
@@ -38,185 +60,106 @@
                     <span>Validation Enseignants</span>
                 </a>
             </nav>
-
-            <!-- Header Section -->
-            <div class="p-6 border-b flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">Liste des Cours</h2>
-            </div>
-
-            <!-- Search and Filter Section -->
-            <div class="p-4 bg-gray-50 border-b">
-                <div class="flex space-x-4">
-                    <input 
-                        type="text" 
-                        placeholder="Rechercher des cours..." 
-                        class="flex-grow px-4 py-2 border rounded-lg"
-                    >
-                    <select class="px-4 py-2 border rounded-lg">
-                        <option>Toutes les catégories</option>
-                        <option>Développement Web</option>
-                        <option>Data Science</option>
-                        <option>Design</option>
-                    </select>
-                    <select class="px-4 py-2 border rounded-lg">
-                        <option>Tous les niveaux</option>
-                        <option>Débutant</option>
-                        <option>Intermédiaire</option>
-                        <option>Avancé</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Courses Grid -->
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Course Card 1 -->
-                <div class="bg-white border rounded-lg shadow-md overflow-hidden">
-                    <div class="relative">
-                        <img 
-                            src="https://via.placeholder.com/350x200" 
-                            alt="Course Image" 
-                            class="w-full h-48 object-cover"
-                        >
-                        <div class="absolute top-2 right-2 flex space-x-2">
-                            <button class="bg-blue-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="bg-red-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-600">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-xl font-semibold mb-2">Python pour Débutants</h3>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-600">Par Jean Dupont</span>
-                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                                Développement
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center text-yellow-500">
-                                <i class="fas fa-star"></i>
-                                <span class="ml-2">4.5 (1250 notes)</span>
-                            </div>
-                            <span class="font-bold text-blue-600">49.99 €</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Card 2 -->
-                <div class="bg-white border rounded-lg shadow-md overflow-hidden">
-                    <div class="relative">
-                        <img 
-                            src="https://via.placeholder.com/350x200" 
-                            alt="Course Image" 
-                            class="w-full h-48 object-cover"
-                        >
-                        <div class="absolute top-2 right-2 flex space-x-2">
-                            <button class="bg-blue-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="bg-red-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-600">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-xl font-semibold mb-2">JavaScript Avancé</h3>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-600">Par Marie Martin</span>
-                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
-                                Web
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center text-yellow-500">
-                                <i class="fas fa-star"></i>
-                                <span class="ml-2">4.7 (2100 notes)</span>
-                            </div>
-                            <span class="font-bold text-blue-600">79.99 €</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Card 3 -->
-                <div class="bg-white border rounded-lg shadow-md overflow-hidden">
-                    <div class="relative">
-                        <img 
-                            src="https://via.placeholder.com/350x200" 
-                            alt="Course Image" 
-                            class="w-full h-48 object-cover"
-                        >
-                        <div class="absolute top-2 right-2 flex space-x-2">
-                            <button class="bg-blue-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="bg-red-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-600">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-xl font-semibold mb-2">Design UX/UI Complet</h3>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-600">Par Pierre Dubois</span>
-                            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs">
-                                Design
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center text-yellow-500">
-                                <i class="fas fa-star"></i>
-                                <span class="ml-2">4.9 (950 notes)</span>
-                            </div>
-                            <span class="font-bold text-blue-600">99.99 €</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            <div class="p-6 flex justify-between items-center border-t">
-                <span class="text-gray-600">Affichage de 1-9 sur 45 cours</span>
-                <div class="flex space-x-2">
-                    <button class="px-4 py-2 border rounded hover:bg-gray-100">
-                        <i class="fas fa-chevron-left mr-2"></i>Précédent
-                    </button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-100">
-                        Suivant<i class="fas fa-chevron-right ml-2"></i>
-                    </button>
-                </div>
-            </div>
         </div>
 
-        <!-- Optional: Delete Confirmation Modal -->
-        <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-            <div class="bg-white p-6 rounded-lg shadow-xl">
-                <h3 class="text-xl font-bold mb-4">Confirmer la suppression</h3>
-                <p class="mb-6">Êtes-vous sûr de vouloir supprimer ce cours ?</p>
-                <div class="flex justify-end space-x-4">
-                    <button class="px-4 py-2 bg-gray-200 rounded">Annuler</button>
-                    <button class="px-4 py-2 bg-red-500 text-white rounded">Supprimer</button>
+        <div class="flex-1 overflow-auto">
+            <header class="bg-white shadow">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <h2 class="text-xl font-semibold">Pages de Gestion</h2>
+                    <div class="flex items-center space-x-4">
+                        <button class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span class="text-gray-600 text-sm">A</span>
+                            </div>
+                            <span class="text-gray-700">Admin</span>
+                        </div>
+                    </div>
                 </div>
+            </header>
+
+            <div class="p-6">
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <div class="flex space-x-4">
+                        <input 
+                            type="text" 
+                            placeholder="Rechercher des cours..." 
+                            class="flex-grow px-4 py-2 border rounded-lg"
+                        >
+                        <select class="px-4 py-2 border rounded-lg">
+                            <option>Toutes les catégories</option>
+                            <option>Développement Web</option>
+                            <option>Data Science</option>
+                            <option>Design</option>
+                        </select>
+                        <select class="px-4 py-2 border rounded-lg">
+                            <option>Tous les niveaux</option>
+                            <option>Débutant</option>
+                            <option>Intermédiaire</option>
+                            <option>Avancé</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <?php 
+            if (isset($courses) && is_array($courses) && count($courses) > 0):
+                foreach ($courses as $course):
+            ?>
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="h-48 bg-gray-200 relative">
+                        <?php if (!empty($course['image'])): ?>
+                            <img src="<?= htmlspecialchars($course['image']) ?>" 
+                                 alt="<?= htmlspecialchars($course['title']) ?>"
+                                 class="w-full h-full object-cover">
+                        <?php else: ?>
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-book text-gray-400 text-4xl"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">
+                            <?= htmlspecialchars($course['title']) ?>
+                        </h3>
+                        <p class="text-gray-600 text-sm mb-2">
+                            Par: <span class="text-red-900"><?= htmlspecialchars($course['teacher_name']) ?></span>
+                        </p>
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                            <?= htmlspecialchars($course['category_name']) ?>
+                        </span>
+                        
+                        <div class="mt-4 flex justify-end space-x-2">
+                            <a href="edit.php?id=<?= $course['id'] ?>" 
+                               class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                               <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="?action=deleteCourse&id=<?= $course['id'] ?>" 
+                               class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');">
+                               <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+                <?php
+                endforeach;
+                else:
+                ?>
+                <div class="col-span-3 text-center py-8">
+                    <i class="fas fa-book-open text-gray-400 text-5xl mb-4"></i>
+                    <p class="text-gray-600">Aucun cours n'est disponible pour le moment.</p>
+                </div>
+                <?php endif; ?>
+            </div>
+
+
             </div>
         </div>
     </div>
 
-    <!-- JavaScript for Modal Interactions -->
-    <script>
-        document.querySelectorAll('.fa-trash').forEach(button => {
-            button.addEventListener('click', () => {
-                document.getElementById('deleteModal').classList.remove('hidden');
-                document.getElementById('deleteModal').classList.add('flex');
-            });
-        });
-
-        document.querySelectorAll('#deleteModal button').forEach(button => {
-            button.addEventListener('click', () => {
-                document.getElementById('deleteModal').classList.remove('flex');
-                document.getElementById('deleteModal').classList.add('hidden');
-            });
-        });
-    </script>
 </body>
 </html>
