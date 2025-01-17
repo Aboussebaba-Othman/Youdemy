@@ -1,7 +1,7 @@
 <?php
 namespace App\Classes;
 
-class Teacher {
+class Teacher extends User{
     private $id;
     private $specialty;
     private $user;
