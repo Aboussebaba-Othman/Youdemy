@@ -23,7 +23,7 @@ class CourseModel {
                     c.id,
                     c.title,
                     c.description,
-                    c.image,
+                    c.image ,
                     u.name AS teacher_name,
                     cat.title AS category_name
                 FROM Courses c
@@ -53,7 +53,6 @@ class CourseModel {
         }
     }
 
-
     public function getTotalCourses() {
         $stmt = $this->connection->prepare("SELECT COUNT(*) FROM courses");
         $stmt->execute();
@@ -61,7 +60,7 @@ class CourseModel {
     }
 
     public function getTotalUsers() {
-        $stmt = $this->connection->prepare("SELECT COUNT(*) FROM users");
+        $stmt = $this->connection->prepare("SELECT COUNT(*) FROM users where status = 'active'");
         $stmt->execute();
         return $stmt->fetchColumn();
     }
@@ -94,8 +93,22 @@ class CourseModel {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-
-
+    public function getTopCategories()
+{
+    try {
+        $stmt = $this->connection->prepare("
+            SELECT c.title AS category_name, COUNT(co.id) AS total_courses
+            FROM Categories c
+            LEFT JOIN Courses co ON c.id = co.category_id
+            GROUP BY c.id
+            ORDER BY total_courses DESC
+            LIMIT 3;
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        throw new \Exception("Error fetching top categories: " . $e->getMessage());
+    }
+}
     
 }

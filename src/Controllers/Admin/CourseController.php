@@ -44,6 +44,7 @@ class CourseController {
         $data['total_students'] = $this->courseModel->getTotalStudents();
 
         $data['top_teachers'] = $this->courseModel->getTopTeachers();
+        $data['top_category'] = $this->courseModel->getTopCategories();
 
         return $data;
     }

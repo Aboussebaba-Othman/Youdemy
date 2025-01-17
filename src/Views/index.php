@@ -49,26 +49,7 @@ try {
                 </div>
     
                 <div class="hidden md:flex items-center flex-1 px-8">
-                    <div class="relative group">
-                        <button class="flex items-center space-x-1 text-secondary hover:text-primary transition-colors duration-200">
-                            <span>Catégories</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
-                        <div class="absolute hidden group-hover:block w-64 bg-base-200 shadow-lg rounded-lg mt-2 p-2 border border-accent">
-                            <a href="#" class="flex items-center p-3 hover:bg-base-100 rounded-md transition-colors duration-200">
-                                <i class="fas fa-code text-primary w-6"></i>
-                                <span>Développement Web</span>
-                            </a>
-                            <a href="#" class="flex items-center p-3 hover:bg-base-100 rounded-md transition-colors duration-200">
-                                <i class="fas fa-paint-brush text-primary w-6"></i>
-                                <span>Design</span>
-                            </a>
-                            <a href="#" class="flex items-center p-3 hover:bg-base-100 rounded-md transition-colors duration-200">
-                                <i class="fas fa-chart-line text-primary w-6"></i>
-                                <span>Marketing</span>
-                            </a>
-                        </div>
-                    </div>
+                    
                     <div class="flex-1 px-8">
                         <div class="relative">
                             <input type="text" placeholder="Rechercher un cours..." class="w-full pl-10 pr-4 py-2 bg-base-200 border border-accent rounded-full focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
@@ -104,28 +85,32 @@ try {
 
     <section id="catalog" class="py-20">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold mb-8 text-center">Popular Courses</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
+        <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
+            <h2 class="text-3xl font-bold mb-8 text-center">Popular Courses</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <?php foreach ($courses as $course): ?>
-                    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                    <div class="bg-white shadow-lg rounded-lg overflow-hidden ">
                         <?php if (!empty($course['image'])): ?>
-                            <img src="<?= htmlspecialchars($course['image']) ?>" 
-                                 alt="<?= htmlspecialchars($course['title']) ?>"
+                            <img src="<?=$course['image']?>" 
+                                 alt="<?= htmlspecialchars($course['title']) ?>" 
                                  class="w-full">
-                        <?php else: ?>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($course['title']) ?></h3>
-                                <p class="text-gray-600 mb-4"><?= htmlspecialchars($course['description']) ?></p>
-                                <a href="#" class="text-blue-600 font-bold">Learn More &rarr;</a>
-                            </div>
                         <?php endif; ?>
+                        
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($course['title']) ?></h3>
+                            <p class="text-gray-600 mb-4"><?= htmlspecialchars($course['description']) ?></p>
+                            <a href="#" class="text-blue-600 font-bold">Learn More &rarr;</a>
+                        </div>
                     </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php else: ?>
+            <p class="text-center">No courses available at the moment.</p>
+        <?php endif; ?>
     </div>
-   </section>
+</section>
+
     <section class="py-12 bg-gray-100">
         <div class="container mx-auto px-4">
         <?php if (!empty($categories)): ?>
