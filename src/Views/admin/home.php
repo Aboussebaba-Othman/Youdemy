@@ -1,3 +1,20 @@
+<?php
+require_once "../../../vendor/autoload.php";
+use App\Controllers\Admin\CourseController;
+
+try {
+
+    $adminController = new CourseController();
+
+    $data = $adminController->getDashboardData();
+
+} catch (PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -59,7 +76,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-gray-500">Total Cours</h3>
-                            <p class="text-2xl font-bold">250</p>
+                            <p class="text-2xl font-bold"><?= $data['total_courses'] ?></p>
                         </div>
                         <i class="fas fa-book text-blue-500 text-3xl"></i>
                     </div>
@@ -68,7 +85,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-gray-500">Utilisateurs</h3>
-                            <p class="text-2xl font-bold">1,250</p>
+                            <p class="text-2xl font-bold"><?= $data['total_users'] ?></p>
                         </div>
                         <i class="fas fa-users text-green-500 text-3xl"></i>
                     </div>
@@ -77,7 +94,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-gray-500">Enseignants</h3>
-                            <p class="text-2xl font-bold">75</p>
+                            <p class="text-2xl font-bold"><?= $data['total_teachers'] ?></p>
                         </div>
                         <i class="fas fa-chalkboard-teacher text-purple-500 text-3xl"></i>
                     </div>
@@ -85,8 +102,8 @@
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-gray-500">Students</h3>
-                            <p class="text-2xl font-bold">45</p>
+                            <h3 class="text-gray-500">Étudiants</h3>
+                            <p class="text-2xl font-bold"><?= $data['total_students'] ?></p>
                         </div>
                         <i class="fas fa-euro-sign text-yellow-500 text-3xl"></i>
                     </div>
@@ -94,11 +111,6 @@
             </div>
 
             <div class="grid grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Cours par Catégorie</h3>
-                    <canvas id="courseChart"></canvas>
-                </div>
-
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-xl font-semibold mb-4">Top 3 Enseignants</h3>
                     <table class="w-full">
@@ -110,21 +122,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="p-2">Jean Dupont</td>
-                                <td class="p-2 text-center">15</td>
-                                <td class="p-2 text-center">450</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2">Marie Martin</td>
-                                <td class="p-2 text-center">12</td>
-                                <td class="p-2 text-center">350</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2">Pierre Dubois</td>
-                                <td class="p-2 text-center">10</td>
-                                <td class="p-2 text-center">300</td>
-                            </tr>
+                            <?php foreach ($data['top_teachers'] as $teacher): ?>
+                                <tr>
+                                    <td class="p-2"><?= htmlspecialchars($teacher['teacher_name']) ?></td>
+                                    <td class="p-2 text-center"><?= $teacher['total_courses'] ?></td>
+                                    <td class="p-2 text-center"><?= $teacher['total_students'] ?></td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -132,6 +136,5 @@
         </div>
     </div>
 
-   
 </body>
 </html>

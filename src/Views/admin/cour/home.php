@@ -7,15 +7,19 @@ $courses = $course->index();
 
 if (isset($_GET['action']) && $_GET['action'] === 'deleteCourse' && isset($_GET['id'])) {
     $courseId = intval($_GET['id']);
+    error_log("Attempting to delete course with ID: $courseId");
+
     try {
         $course->deleteControllerCourse($courseId);
-        $_SESSION['success_message'] = "Cours supprimé avec succès";
+        $_SESSION['success_message'] = "Course deleted successfully.";
     } catch (Exception $e) {
-        $_SESSION['error_message'] = "Erreur lors de la suppression du cours : " . $e->getMessage();
+        $_SESSION['error_message'] = "Error deleting course: " . $e->getMessage();
     }
+
     header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
     exit();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -137,10 +141,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'deleteCourse' && isset($_GET[
                                <i class="fas fa-edit"></i>
                             </a>
                             <a href="?action=deleteCourse&id=<?= $course['id'] ?>" 
-                               class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');">
-                               <i class="fas fa-trash"></i>
-                            </a>
+   class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');">
+   <i class="fas fa-trash"></i>
+</a>
+
                         </div>
 
                     </div>
