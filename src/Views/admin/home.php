@@ -64,10 +64,12 @@ try {
                 <h2 class="text-3xl font-bold text-gray-800">Tableau de Bord</h2>
                 <div class="flex items-center">
                     <input type="text" placeholder="Rechercher..." class="px-4 py-2 border rounded-lg mr-4">
-                    <div class="relative">
-                        <img src="https://via.placeholder.com/40" class="rounded-full" alt="Admin">
-                        <span class="absolute bottom-0 right-0 bg-green-500 h-3 w-3 rounded-full"></span>
-                    </div>
+                    <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span class="text-gray-600 text-sm">A</span>
+                            </div>
+                            <span class="text-gray-700">Admin</span>
+                        </div>
                 </div>
             </header>
 

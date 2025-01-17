@@ -92,17 +92,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'deleteCourse' && isset($_GET[
                             placeholder="Rechercher des cours..." 
                             class="flex-grow px-4 py-2 border rounded-lg"
                         >
+                        
                         <select class="px-4 py-2 border rounded-lg">
                             <option>Toutes les catégories</option>
                             <option>Développement Web</option>
                             <option>Data Science</option>
                             <option>Design</option>
-                        </select>
-                        <select class="px-4 py-2 border rounded-lg">
-                            <option>Tous les niveaux</option>
-                            <option>Débutant</option>
-                            <option>Intermédiaire</option>
-                            <option>Avancé</option>
                         </select>
                     </div>
                 </div>
