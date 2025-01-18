@@ -1,24 +1,36 @@
-<?php
-session_start(); 
+<?php 
+session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once "../../../vendor/autoload.php";
 
 use App\Controllers\Teacher\TeacherController;
 use App\Controllers\Teacher\CourseController;
 
 try {
-    $teacherController = new TeacherController();
-    $data = $teacherController->getHomeData();
     $courseController = new CourseController();
-    $courseController->handleAddCourse();
+    $data = $courseController->getHomeData();
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['course_id'])) {
+            $courseController->deleteCourse($_POST['course_id']);
+        } else {
+            $courseController->handleAddCourse();
+        }
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+    
 } catch (\Exception $e) {
     error_log($e->getMessage());
     $data = [
         'categories' => [],
         'tags' => [],
+        'courses' => [],
         'error' => 'Unable to load dashboard data'
     ];
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -103,35 +115,7 @@ try {
 
             <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 animate-fade-in">
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-gray-500 text-sm">Total Cours</h3>
-                                <p class="text-3xl font-bold text-blue-600">24</p>
-                            </div>
-                            <i class="fas fa-book text-3xl text-blue-300"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-gray-500 text-sm">Étudiants Inscrits</h3>
-                                <p class="text-3xl font-bold text-green-600">1,250</p>
-                            </div>
-                            <i class="fas fa-users text-3xl text-green-300"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-gray-500 text-sm">Revenus</h3>
-                                <p class="text-3xl font-bold text-purple-600">45,000€</p>
-                            </div>
-                            <i class="fas fa-euro-sign text-3xl text-purple-300"></i>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="mt-8">
                     <div class="flex justify-between items-center mb-4">
@@ -144,22 +128,66 @@ try {
                         </button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition hover:scale-105 hover:shadow-xl">
-                            <img src="https://via.placeholder.com/350x200" class="w-full h-48 object-cover" alt="Cours">
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg">Python pour Débutants</h3>
-                                <p class="text-gray-600 text-sm">Apprenez Python de A à Z</p>
-                                <div class="mt-4 flex justify-between items-center">
-                                    <span class="text-yellow-500">
-                                        <i class="fas fa-star"></i> 4.5
-                                    </span>
-                                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-                                        Détails
-                                    </button>
-                                </div>
-                            </div>
+    <?php foreach ($data['courses'] as $course): ?>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="relative">
+                <img src="<?= htmlspecialchars($course['image']) ?>" 
+                     class="w-full h-48 object-cover" 
+                     alt="<?= htmlspecialchars($course['title']) ?>">
+                <div class="absolute top-0 right-0 m-4">
+                    <span class="bg-white px-3 py-1 rounded-full text-sm font-medium text-gray-700 shadow">
+                        <?= htmlspecialchars($course['category_name']) ?>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    <?= htmlspecialchars($course['title']) ?>
+                </h3>
+                <p class="text-gray-600 text-sm mb-4">
+                    <?= htmlspecialchars($course['description']) ?>
+                </p>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="p-2 rounded-full bg-blue-50">
+                            <i class="fas fa-users text-blue-500"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">
+                            <?= $course['student_count'] ?> étudiants
+                        </span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex text-yellow-400">
+                            <?php for($i = 0; $i < 5; $i++): ?>
+                                <i class="fas fa-star text-sm"></i>
+                            <?php endfor; ?>
                         </div>
                     </div>
+                </div>
+                
+                <div class="flex justify-between items-center pt-4 border-t">
+                    <a href="edit_course.php?id=<?= $course['id'] ?>" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>
+                        Modifier
+                    </a>
+                    
+                    <form action="" method="post" class="inline" 
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');">
+                        <input type="hidden" name="course_id" value="<?= $course['id'] ?>">
+                        <button type="submit" 
+                                class="inline-flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>
+                            Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
                 </div>
             </main>
         </div>
@@ -173,7 +201,6 @@ try {
                 </button>
             </div>
 
-<!-- Modifier le formulaire pour enlever preventDefault -->
 <form  action=""  method="post" class="space-y-6">    
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -302,7 +329,6 @@ try {
 
     <script>
         
-        // Gestion des types de contenu
         const contentTypeRadios = document.querySelectorAll('input[name="contentType"]');
         const videoContent = document.getElementById('videoContent');
         const documentContent = document.getElementById('documentContent');
@@ -320,7 +346,6 @@ try {
             });
         });
 
-        // Gestion du modal
         const addCourseModal = document.getElementById('addCourseModal');
         const addCourseBtn = document.querySelector('[data-modal-target="addCourseForm"]');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -341,19 +366,16 @@ try {
         closeModalBtn.addEventListener('click', closeModal);
         cancelAddCourseBtn.addEventListener('click', closeModal);
 
-        // Gestion du formulaire
         document.getElementById('addCourseForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
             
-            // Validation
             if (!formData.get('title') || !formData.get('category_id')) {
                 alert('Veuillez remplir tous les champs obligatoires');
                 return;
             }
 
-            // Envoi des données
             console.log('Données du cours à envoyer:', Object.fromEntries(formData));
             closeModal();
         });
