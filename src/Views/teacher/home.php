@@ -1,18 +1,25 @@
 <?php
+session_start(); 
 require_once "../../../vendor/autoload.php";
-use App\Controllers\Admin\CourseController;
-use App\Controllers\Admin\CategoryController;
-use App\Controllers\Admin\TagController;
 
+use App\Controllers\Teacher\TeacherController;
+use App\Controllers\Teacher\CourseController;
 
-    $TagController = new TagController();
-    $tags = $TagController->index();
-    $categoryController = new CategoryController();
-    $categories = $categoryController->getCategories();
-
+try {
+    $teacherController = new TeacherController();
+    $data = $teacherController->getHomeData();
+    $courseController = new CourseController();
+    $courseController->handleAddCourse();
+} catch (\Exception $e) {
+    error_log($e->getMessage());
+    $data = [
+        'categories' => [],
+        'tags' => [],
+        'error' => 'Unable to load dashboard data'
+    ];
+}
 
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -31,6 +38,19 @@ use App\Controllers\Admin\TagController;
         }</style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+        <?= htmlspecialchars($_SESSION['success']) ?>
+        <?php unset($_SESSION['success']); ?>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+        <?= htmlspecialchars($_SESSION['error']) ?>
+        <?php unset($_SESSION['error']); ?>
+    </div>
+<?php endif; ?>
     <div class="flex h-screen overflow-hidden">
         <div id="sidebar" class="w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transform transition-transform duration-300 ease-in-out md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full shadow-2xl">
             <div class="p-6 border-b border-gray-700 flex items-center">
@@ -153,8 +173,9 @@ use App\Controllers\Admin\TagController;
                 </button>
             </div>
 
-            <form id="addCourseForm" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Modifier le formulaire pour enlever preventDefault -->
+<form  action=""  method="post" class="space-y-6">    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-gray-700 mb-2">Titre du Cours *</label>
                         <input 
@@ -168,18 +189,14 @@ use App\Controllers\Admin\TagController;
 
                     <div>
                         <label class="block text-gray-700 mb-2">Catégorie *</label>
-                        <?php if (!empty($categories)): ?>
-                        <select 
-                            name="category_id" 
-                            required 
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                        <?php foreach ($categories as $category): ?>
-                            <option value="">Sélectionnez une catégorie</option>
-                            <option value="1"><?= htmlspecialchars($category['title']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <?php endif; ?>
+                        <select name="category_id" required class="w-full px-4 py-2 border rounded-lg">
+        <option value="">Select Category</option>
+        <?php foreach ($data['categories'] as $category): ?>
+            <option value="<?= htmlspecialchars($category['id']) ?>">
+                <?= htmlspecialchars($category['title']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
                     </div>
                 </div>
 
@@ -250,23 +267,19 @@ use App\Controllers\Admin\TagController;
     <p class="text-sm text-gray-500">Format recommandé : 1280x720px, JPG ou PNG</p>
 </div>
 
-                <div>
-                    <label class="block text-gray-700 mb-2">Tags</label>
-                    <div class="flex flex-wrap gap-2">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="tags[]" value="javascript" class="form-checkbox">
-                            <span class="ml-2">JavaScript</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="tags[]" value="react" class="form-checkbox">
-                            <span class="ml-2">React</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="tags[]" value="backend" class="form-checkbox">
-                            <span class="ml-2">Backend</span>
-                        </label>
-                    </div>
-                </div>
+<div class="space-y-4">
+        <label class="block text-gray-700 mb-2">Tags</label>
+        <div class="flex flex-wrap gap-2">
+            <?php foreach ($data['tags'] as $tag): ?>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="tags[]" 
+                           value="<?= htmlspecialchars($tag['id']) ?>" 
+                           class="form-checkbox">
+                    <span class="ml-2"><?= htmlspecialchars($tag['title']) ?></span>
+                </label>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
                 <div class="flex justify-end space-x-4 pt-4">
                     <button 
@@ -288,6 +301,7 @@ use App\Controllers\Admin\TagController;
     </div>
 
     <script>
+        
         // Gestion des types de contenu
         const contentTypeRadios = document.querySelectorAll('input[name="contentType"]');
         const videoContent = document.getElementById('videoContent');
