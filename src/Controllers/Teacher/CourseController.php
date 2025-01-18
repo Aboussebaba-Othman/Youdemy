@@ -1,29 +1,22 @@
 <?php
 namespace App\Controllers\Teacher;
-
+use App\Models\Teacher\CourseModel;
+use App\Models\Teacher\CategoryModel;
+use App\Models\Teacher\TagModel;
 class CourseController {
     private $courseModel;
     private $categoryModel;
     private $tagModel;
     
     public function __construct() {
-        $this->courseModel = new \App\Models\Teacher\CourseModel();
-        $this->categoryModel = new \App\Models\Teacher\CategoryModel();
-        $this->tagModel = new \App\Models\Teacher\TagModel();
+        $this->courseModel = new CourseModel();
+        $this->categoryModel = new CategoryModel();
+        $this->tagModel = new TagModel();
     }
     
     public function handleAddCourse() {
-        error_log("handleAddCourse called");
-        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                error_log("POST data: " . print_r($_POST, true));
-                
-                if (empty($_POST['title']) || empty($_POST['category_id'])) {
-                    $_SESSION['error'] = "Title and category are required";
-                    return;
-                }
-                
                 $courseData = [
                     'title' => trim($_POST['title']),
                     'description' => trim($_POST['description']),
@@ -32,23 +25,26 @@ class CourseController {
                     'tags' => isset($_POST['tags']) ? (array)$_POST['tags'] : [],
                     'content' => ''
                 ];
-                
+    
                 if ($_POST['contentType'] === 'video') {
                     $courseData['content'] = trim($_POST['videoUrl']);
                 } else {
                     $courseData['content'] = trim($_POST['documentContent']);
                 }
-                
-                $result = $this->courseModel->addCourse($courseData);
-                
-                if ($result) {
-                    $_SESSION['success'] = "Course added successfully";
+    
+                if (!empty($_POST['course_id'])) {
+                    $result = $this->courseModel->updateCourse($_POST['course_id'], $courseData, 21);
+                    $_SESSION['success'] = "Course updated successfully";
                 } else {
-                    $_SESSION['error'] = "Failed to add course";
+                    $result = $this->courseModel->addCourse($courseData);
+                    $_SESSION['success'] = "Course added successfully";
+                }
+    
+                if (!$result) {
+                    $_SESSION['error'] = "Operation failed";
                 }
                 
             } catch (\Exception $e) {
-                error_log("Error adding course: " . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
             }
         }
@@ -68,8 +64,7 @@ class CourseController {
             return [
                 'categories' => [],
                 'tags' => [],
-                'courses' => [],
-                'stats' => []
+                'courses' => []
             ];
         }
     }
@@ -84,6 +79,35 @@ class CourseController {
             }
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
+        }
+    }
+    public function getCourse($courseId) {
+        try {
+            $teacherId = 21; 
+            $course = $this->courseModel->getCourse($courseId, $teacherId);
+            
+            if (!$course) {
+                throw new \Exception("Course not found");
+            }
+            
+            return $course;
+        } catch (\Exception $e) {
+            throw new \Exception("Error getting course: " . $e->getMessage());
+        }
+    }
+    
+    public function updateCourse($courseId, $courseData) {
+        try {
+            $teacherId = 21; 
+            
+            if (empty($courseData['title']) || empty($courseData['category_id'])) {
+                throw new \Exception("Title and category are required");
+            }
+    
+            return $this->courseModel->updateCourse($courseId, $courseData, $teacherId);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            return false;
         }
     }
 }
