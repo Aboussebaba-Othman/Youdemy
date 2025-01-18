@@ -96,15 +96,41 @@ class CourseController {
         }
     }
     
-    public function updateCourse($courseId, $courseData) {
+    public function updateCourse($courseId, $postData) {
         try {
-            $teacherId = 21; 
-            
+            $teacherId = 21;
+    
+            $currentCourse = $this->courseModel->getCourse($courseId, $teacherId);
+            if (!$currentCourse) {
+                throw new \Exception("Course not found");
+            }
+    
+            $courseData = [
+                'title' => trim($postData['title']),
+                'description' => trim($postData['description']),
+                'category_id' => (int)$postData['category_id'],
+                'image' => trim($postData['coverImageUrl']),
+                'tags' => isset($postData['tags']) ? (array)$postData['tags'] : [],
+                'content' => $currentCourse['content'] 
+            ];
+    
+            if ($postData['contentType'] === 'video' && !empty($postData['videoUrl'])) {
+                $courseData['content'] = trim($postData['videoUrl']);
+            } elseif ($postData['contentType'] === 'document' && !empty($postData['documentContent'])) {
+                $courseData['content'] = trim($postData['documentContent']);
+            }
+    
             if (empty($courseData['title']) || empty($courseData['category_id'])) {
                 throw new \Exception("Title and category are required");
             }
     
-            return $this->courseModel->updateCourse($courseId, $courseData, $teacherId);
+            if ($this->courseModel->updateCourse($courseId, $courseData, $teacherId)) {
+                $_SESSION['success'] = "Course updated successfully";
+                return true;
+            } else {
+                $_SESSION['error'] = "Failed to update course";
+                return false;
+            }
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             return false;

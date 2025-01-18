@@ -2,7 +2,6 @@
 
 namespace App\Classes;
 
-
 class User {
     protected $id;
     protected $name;
@@ -11,19 +10,26 @@ class User {
     protected $status;
     protected $role;
     
-    public function __construct($id,$name, $email,$password,$status, $role,) {
-            $this->id = $id;
-            $this->name = $name;
-            $this->email = $email;
-            $this->password = $password;
-            $this->status = $status;
-            $this->role = $role;
-        }
+    public function __construct($id, $name, $email, $role, $password, $status) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->email = $email;
+        $this->role = $role;
+        $this->password = $password;
+        
+        $this->status = strtolower(trim($status ?? 'pending'));
+    }
+    
     public function getId() { return $this->id; }
     public function getName() { return $this->name; }
     public function getEmail() { return $this->email; }
-    public function getPassword() { return $this->password; }
-    public function getStatus() { return $this->status; }
-    public function getRole() { return $this->role; }
     
+    public function getHashedPassword() { return $this->password; }
+    
+    public function getStatus() { 
+        $validStatuses = ['active', 'suspended', 'pending'];
+        return in_array($this->status, $validStatuses) ? $this->status : 'pending';
+    }
+    
+    public function getRole() { return $this->role; }
 }
