@@ -7,10 +7,12 @@ require_once "../../../vendor/autoload.php";
 
 use App\Controllers\Teacher\TeacherController;
 use App\Controllers\Teacher\CourseController;
+use App\Models\Teacher\CourseModel;
 
 try {
     $courseController = new CourseController();
     $data = $courseController->getHomeData();
+    $courseModel = new CourseModel();
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['course_id'])) {
@@ -20,6 +22,15 @@ try {
         }
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
+    }
+    if (isset($_SESSION['user_id'])) {
+        $teacher = $courseModel->getTeacherByUserId($_SESSION['user_id']);
+        
+        if ($teacher !== null) {
+            $teacherName = $teacher->getUser()->getName();
+            
+            $teacherInitial = strtoupper(substr($teacherName, 0, 1));
+        }
     }
     
 } catch (\Exception $e) {
@@ -75,7 +86,7 @@ try {
     </div>
     <?php endif; ?>
     <div class="flex h-screen overflow-hidden">
-    <div id="sidebar" class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white 
+        <div id="sidebar" class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white 
                                  transform transition-transform duration-300 ease-in-out 
                                  md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full 
                                  shadow-2xl custom-scrollbar">
@@ -110,11 +121,12 @@ try {
                 </div>
 
                 <div class="relative">
-                    <div id="userProfileToggle" class="flex items-center cursor-pointer 
-                                                       hover:bg-gray-100 p-2 rounded-full transition">
-                        <span class="mr-3 text-gray-700 font-medium">Jean Dupont</span>
+                    <div id="userProfileToggle" class="flex items-center cursor-pointer
+                                       hover:bg-gray-100 p-2 rounded-full transition">
+                        <span class="mr-3 text-gray-700 font-medium"><?= htmlspecialchars($teacherName) ?></span>
                         <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                            <span class="text-blue-600 text-sm font-bold">T</span>
+                            <span
+                                class="text-blue-600 text-sm font-bold"><?= htmlspecialchars($teacherInitial) ?></span>
                         </div>
                     </div>
                 </div>

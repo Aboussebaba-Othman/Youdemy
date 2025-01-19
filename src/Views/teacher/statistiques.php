@@ -3,10 +3,21 @@ session_start();
 
 require_once "../../../vendor/autoload.php";
 use App\Controllers\Teacher\StatisticController;
+use App\Models\Teacher\CourseModel;
 
 try {
     $statistiquesController = new StatisticController();
     $data = $statistiquesController->getStatistics();
+    $courseModel = new CourseModel();
+    if (isset($_SESSION['user_id'])) {
+        $teacher = $courseModel->getTeacherByUserId($_SESSION['user_id']);
+        
+        if ($teacher !== null) {
+            $teacherName = $teacher->getUser()->getName();
+            
+            $teacherInitial = strtoupper(substr($teacherName, 0, 1));
+        }
+    }
 } catch (Exception $e) {
     error_log($e->getMessage());
     
@@ -90,11 +101,12 @@ try {
                 </div>
 
                 <div class="relative">
-                    <div id="userProfileToggle" class="flex items-center cursor-pointer 
-                                                       hover:bg-gray-100 p-2 rounded-full transition">
-                        <span class="mr-3 text-gray-700 font-medium">Jean Dupont</span>
+                    <div id="userProfileToggle" class="flex items-center cursor-pointer
+                                       hover:bg-gray-100 p-2 rounded-full transition">
+                        <span class="mr-3 text-gray-700 font-medium"><?= htmlspecialchars($teacherName) ?></span>
                         <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                            <span class="text-blue-600 text-sm font-bold">T</span>
+                            <span
+                                class="text-blue-600 text-sm font-bold"><?= htmlspecialchars($teacherInitial) ?></span>
                         </div>
                     </div>
                 </div>

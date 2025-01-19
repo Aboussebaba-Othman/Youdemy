@@ -33,12 +33,5 @@ class TeacherController
         }
     }
 
-    private function getTeacherStats(): array 
-    {
-        return [
-            'total_courses' => 0,
-            'total_students' => 0,
-            'total_revenue' => 0
-        ];
-    }
+    
 }
