@@ -78,7 +78,7 @@ try {
         <div id="sidebar"
             class="w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transform transition-transform duration-300 ease-in-out md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full shadow-2xl">
             <div class="p-6 border-b border-gray-700 flex items-center">
-                <img src="https://via.placeholder.com/50" class="w-10 h-10 rounded-full mr-3" alt="Logo">
+            <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
                 <h1 class="text-2xl font-bold text-white">Youdemy</h1>
             </div>
 
@@ -91,7 +91,7 @@ try {
                     <i class="fas fa-book mr-4 text-green-400 group-hover:text-white transition"></i>
                     Mes Cours
                 </a>
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
+                <a href="statistiques.php" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
                     <i class="fas fa-chart-line mr-4 text-purple-400 group-hover:text-white transition"></i>
                     Statistiques
                 </a>

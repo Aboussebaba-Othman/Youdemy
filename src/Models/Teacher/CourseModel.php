@@ -1,22 +1,29 @@
 <?php
 namespace App\Models\Teacher;
+
 use App\Config\DatabaseConnection;
+use App\Classes\Teacher;
+use App\Classes\User;
 use PDO;
 use PDOException;
+use Exception;
 
-class CourseModel {
+class CourseModel
+{
     private $connection;
 
-    public function __construct() {
+    public function __construct()
+    {
         $db = new DatabaseConnection();
         $this->connection = $db->connect();
     }
 
-    public function addCourse($data) {
+    public function addCourse($data, $teacherId)
+    {
         try {
             $this->connection->beginTransaction();
 
-            $sql = "INSERT INTO Courses (title, description, content, image, category_id, teacher_id) 
+            $sql = "INSERT INTO courses (title, description, content, image, category_id, teacher_id) 
                     VALUES (:title, :description, :content, :image, :category_id, :teacher_id)";
 
             $stmt = $this->connection->prepare($sql);
@@ -26,13 +33,23 @@ class CourseModel {
                 'content' => $data['content'],
                 'image' => $data['image'],
                 'category_id' => $data['category_id'],
-                'teacher_id' => 21 
+                'teacher_id' => $teacherId
             ]);
+
+            error_log("addCourse SQL query: " . $stmt->queryString);
+            error_log("addCourse SQL params: " . print_r([
+                'title' => $data['title'],
+                'description' => $data['description'],
+                'content' => $data['content'],
+                'image' => $data['image'],
+                'category_id' => $data['category_id'],
+                'teacher_id' => $teacherId
+            ], true));
 
             $courseId = $this->connection->lastInsertId();
 
             if (!empty($data['tags'])) {
-                $tagSql = "INSERT INTO Coursetag (course_id, tag_id) VALUES (:course_id, :tag_id)";
+                $tagSql = "INSERT INTO coursetag (course_id, tag_id) VALUES (:course_id, :tag_id)";
                 $tagStmt = $this->connection->prepare($tagSql);
 
                 foreach ($data['tags'] as $tagId) {
@@ -45,13 +62,51 @@ class CourseModel {
 
             $this->connection->commit();
             return true;
-
         } catch (PDOException $e) {
             $this->connection->rollBack();
-            throw new \Exception("Failed to add course: " . $e->getMessage());
+            error_log("Error in addCourse: " . $e->getMessage());
+            throw new Exception("Failed to add course: " . $e->getMessage());
+        } catch (Exception $e) {
+            $this->connection->rollBack();
+            error_log("Error in addCourse: " . $e->getMessage());
+            throw new Exception("Failed to add course: " . $e->getMessage());
         }
     }
-    public function getTeacherCourses($teacherId) {
+
+    public function getTeacherByUserId($userId): ?Teacher
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT teachers.id, teachers.specialty, users.id as user_id, users.name, users.email
+                FROM teachers 
+                JOIN users ON teachers.user_id = users.id
+                WHERE users.id = ?
+            ");
+            $stmt->execute([$userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($row) {
+                return new Teacher(
+                    $row['id'],
+                    $row['specialty'],
+                    new User(
+                        $row['user_id'],
+                        $row['name'],
+                        $row['email'],
+                        null,
+                        null, 
+                        null 
+                    )
+                );
+            }
+        } catch (PDOException $e) {
+            error_log("Error getting teacher: " . $e->getMessage());
+        }
+        return null;
+    }
+
+    public function getTeacherCourses($teacherId)
+    {
         try {
             $sql = "SELECT 
                     c.id,
@@ -61,9 +116,9 @@ class CourseModel {
                     c.content,
                     cat.title as category_name,
                     COUNT(DISTINCT e.student_id) as student_count
-                FROM Courses c
-                LEFT JOIN Categories cat ON c.category_id = cat.id
-                LEFT JOIN Enrollment e ON c.id = e.course_id
+                FROM courses c
+                LEFT JOIN categories cat ON c.category_id = cat.id
+                LEFT JOIN enrollment e ON c.id = e.course_id
                 WHERE c.teacher_id = :teacher_id
                 GROUP BY c.id
                 ORDER BY c.id DESC";
@@ -73,30 +128,32 @@ class CourseModel {
             
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new \Exception("Error fetching courses: " . $e->getMessage());
+            error_log("Error fetching courses: " . $e->getMessage());
+            throw new Exception("Error fetching courses: " . $e->getMessage());
         }
     }
 
-    public function deleteCourse($courseId, $teacherId) {
+    public function deleteCourse($courseId, $teacherId)
+    {
         try {
             $stmt = $this->connection->prepare(
-                "SELECT id FROM Courses WHERE id = :id AND teacher_id = :teacher_id"
+                "SELECT id FROM courses WHERE id = :id AND teacher_id = :teacher_id"
             );
             $stmt->execute(['id' => $courseId, 'teacher_id' => $teacherId]);
             
             if (!$stmt->fetch()) {
-                throw new \Exception("Course not found or unauthorized");
+                throw new Exception("Course not found or unauthorized");
             }
 
             $this->connection->beginTransaction();
 
-            $stmt = $this->connection->prepare("DELETE FROM Coursetag WHERE course_id = :course_id");
+            $stmt = $this->connection->prepare("DELETE FROM coursetag WHERE course_id = :course_id");
             $stmt->execute(['course_id' => $courseId]);
 
-            $stmt = $this->connection->prepare("DELETE FROM Enrollment WHERE course_id = :course_id");
+            $stmt = $this->connection->prepare("DELETE FROM enrollment WHERE course_id = :course_id");
             $stmt->execute(['course_id' => $courseId]);
 
-            $stmt = $this->connection->prepare("DELETE FROM Courses WHERE id = :id AND teacher_id = :teacher_id");
+            $stmt = $this->connection->prepare("DELETE FROM courses WHERE id = :id AND teacher_id = :teacher_id");
             $stmt->execute(['id' => $courseId, 'teacher_id' => $teacherId]);
 
             $this->connection->commit();
@@ -104,17 +161,20 @@ class CourseModel {
 
         } catch (PDOException $e) {
             $this->connection->rollBack();
-            throw new \Exception("Error deleting course: " . $e->getMessage());
+            error_log("Error deleting course: " . $e->getMessage());
+            throw new Exception("Error deleting course: " . $e->getMessage());
         }
     }
-    public function getCourse($courseId, $teacherId) {
+
+    public function getCourse($courseId, $teacherId)
+    {
         try {
             $sql = "SELECT c.*, cat.title as category_name,
                     GROUP_CONCAT(t.id) as tag_ids
-                    FROM Courses c
-                    LEFT JOIN Categories cat ON c.category_id = cat.id
-                    LEFT JOIN CourseTag ct ON c.id = ct.course_id
-                    LEFT JOIN Tags t ON ct.tag_id = t.id
+                    FROM courses c
+                    LEFT JOIN categories cat ON c.category_id = cat.id
+                    LEFT JOIN coursetag ct ON c.id = ct.course_id
+                    LEFT JOIN tags t ON ct.tag_id = t.id
                     WHERE c.id = :id AND c.teacher_id = :teacher_id
                     GROUP BY c.id";
     
@@ -134,16 +194,18 @@ class CourseModel {
             return $course;
     
         } catch (PDOException $e) {
-            throw new \Exception("Error fetching course: " . $e->getMessage());
+            error_log("Error fetching course: " . $e->getMessage());
+            throw new Exception("Error fetching course: " . $e->getMessage());
         }
     }
     
-    public function updateCourse($courseId, $data, $teacherId) {
+    public function updateCourse($courseId, $data, $teacherId)
+    {
         try {
             $this->connection->beginTransaction();
     
             $stmt = $this->connection->prepare(
-                "SELECT id FROM Courses WHERE id = :id AND teacher_id = :teacher_id"
+                "SELECT id FROM courses WHERE id = :id AND teacher_id = :teacher_id"
             );
             $stmt->execute([
                 'id' => $courseId,
@@ -151,10 +213,10 @@ class CourseModel {
             ]);
             
             if (!$stmt->fetch()) {
-                throw new \Exception("Course not found or unauthorized");
+                throw new Exception("Course not found or unauthorized");
             }
     
-            $sql = "UPDATE Courses SET 
+            $sql = "UPDATE courses SET 
                     title = :title,
                     description = :description,
                     content = :content,
@@ -174,11 +236,11 @@ class CourseModel {
             ]);
     
             if (isset($data['tags'])) {
-                $stmt = $this->connection->prepare("DELETE FROM CourseTag WHERE course_id = ?");
+                $stmt = $this->connection->prepare("DELETE FROM coursetag WHERE course_id = ?");
                 $stmt->execute([$courseId]);
     
                 if (!empty($data['tags'])) {
-                    $tagSql = "INSERT INTO CourseTag (course_id, tag_id) VALUES (?, ?)";
+                    $tagSql = "INSERT INTO coursetag (course_id, tag_id) VALUES (?, ?)";
                     $tagStmt = $this->connection->prepare($tagSql);
                     
                     foreach ($data['tags'] as $tagId) {
@@ -192,8 +254,8 @@ class CourseModel {
     
         } catch (PDOException $e) {
             $this->connection->rollBack();
-            error_log($e->getMessage());
-            throw new \Exception("Error updating course: " . $e->getMessage());
+            error_log("Error updating course: " . $e->getMessage());
+            throw new Exception("Error updating course: " . $e->getMessage());
         }
     }
 }

@@ -31,13 +31,7 @@ class LoginController {
             ];
         }
 
-        // if (!password_verify($password, $user->getHashedPassword())) {
-        //     error_log("Password verification failed for: " . $email);
-        //     return [
-        //         'status' => 'error',
-        //         'message' => 'Invalid credentials.'
-        //     ];
-        // }
+        
 
         $status = $user->getStatus();
         error_log("User status: " . $status);
