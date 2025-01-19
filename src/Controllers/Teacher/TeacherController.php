@@ -1,6 +1,5 @@
 <?php
 namespace App\Controllers\Teacher;
-
 use App\Models\Teacher\CategoryModel;
 use App\Models\Teacher\TagModel;
 

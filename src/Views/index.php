@@ -92,28 +92,73 @@ try {
         </div>
     </div>
 
-    <section id="catalog" class="py-20">
+    <section id="catalog" class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
-            <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
-            <h2 class="text-3xl font-bold mb-8 text-center">Popular Courses</h2>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    Available Courses
+                </h2>
+                <p class="text-gray-600 max-w-xl mx-auto">
+                    Explore our collection of courses designed to help you develop
+                    new skills and achieve your professional goals.
+                </p>
+            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <?php foreach ($courses as $course): ?>
-                <div class="bg-white shadow-lg rounded-lg overflow-hidden ">
+                <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <?php if (!empty($course['image'])): ?>
-                    <img src="<?=$course['image']?>" alt="<?= htmlspecialchars($course['title']) ?>" class="w-full">
+                    <div class="relative">
+                        <img src="<?= htmlspecialchars($course['image']) ?>"
+                            alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
+                            <span class="text-xs font-medium text-gray-700">
+                                <?= htmlspecialchars($course['category_name'] ?? 'General') ?>
+                            </span>
+                        </div>
+                    </div>
                     <?php endif; ?>
 
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($course['title']) ?></h3>
-                        <p class="text-gray-600 mb-4"><?= htmlspecialchars($course['description']) ?></p>
-                        <a href="#" class="text-blue-600 font-bold">Learn More &rarr;</a>
+                    <div class="p-5">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                                <?= htmlspecialchars($course['title']) ?>
+                            </h3>
+                            <div class="flex items-center text-gray-600 text-sm">
+                                <i class="fas fa-chalkboard-teacher text-blue-500 mr-2"></i>
+                                <?= htmlspecialchars($course['teacher_name'] ?? 'Undefined Instructor') ?>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                            <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
+                        </p>
+
+                        <div class="flex items-center text-gray-600 text-sm mb-4">
+                            <i class="fas fa-users text-blue-500 mr-2"></i>
+                            <?= $course['students_count'] ?? 0 ?> Students
+                        </div>
+
+                        <a href="course-details/<?= $course['id'] ?>" class="w-full text-center block bg-blue-500 text-white 
+                                       px-4 py-2 rounded-lg text-sm 
+                                       hover:bg-blue-600 transition">
+                            View Details
+                        </a>
                     </div>
                 </div>
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <p class="text-center">No courses available at the moment.</p>
+            <div class="text-center bg-white p-12 rounded-xl shadow-md">
+                <i class="fas fa-graduation-cap text-5xl text-blue-500 mb-4"></i>
+                <p class="text-xl text-gray-700 mb-2">
+                    No courses available at the moment
+                </p>
+                <p class="text-gray-500">
+                    Stay tuned, new courses are coming soon!
+                </p>
+            </div>
             <?php endif; ?>
         </div>
     </section>

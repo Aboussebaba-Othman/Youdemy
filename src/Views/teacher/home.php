@@ -78,16 +78,12 @@ try {
         <div id="sidebar"
             class="w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transform transition-transform duration-300 ease-in-out md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full shadow-2xl">
             <div class="p-6 border-b border-gray-700 flex items-center">
-            <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
+                <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
                 <h1 class="text-2xl font-bold text-white">Youdemy</h1>
             </div>
 
             <nav class="mt-6">
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-tachometer-alt mr-4 text-blue-400 group-hover:text-white transition"></i>
-                    Tableau de Bord
-                </a>
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
+                <a href="home.php" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
                     <i class="fas fa-book mr-4 text-green-400 group-hover:text-white transition"></i>
                     Mes Cours
                 </a>
@@ -112,15 +108,12 @@ try {
                 </div>
 
                 <div class="relative">
-                    <div id="userProfileToggle" class="flex items-center cursor-pointer">
-                        <span class="mr-3 text-gray-700">Jean Dupont</span>
-                        <img src="https://via.placeholder.com/40" class="rounded-full w-10 h-10" alt="Profile">
-                    </div>
-                    <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden">
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100">Profil</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100">Paramètres</a>
-                        <div class="border-t"></div>
-                        <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100">Déconnexion</a>
+                    <div id="userProfileToggle" class="flex items-center cursor-pointer 
+                                                       hover:bg-gray-100 p-2 rounded-full transition">
+                        <span class="mr-3 text-gray-700 font-medium">Jean Dupont</span>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <span class="text-blue-600 text-sm font-bold">T</span>
+                        </div>
                     </div>
                 </div>
             </header>
