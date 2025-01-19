@@ -77,7 +77,7 @@ class CourseModel
     {
         try {
             $stmt = $this->connection->prepare("
-                SELECT teachers.id, teachers.specialty, users.id as user_id, users.name, users.email
+                SELECT teachers.id,  teachers.specialty, users.id as user_id, users.name, users.email
                 FROM teachers 
                 JOIN users ON teachers.user_id = users.id
                 WHERE users.id = ?

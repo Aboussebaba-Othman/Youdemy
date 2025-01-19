@@ -75,24 +75,26 @@ try {
     </div>
     <?php endif; ?>
     <div class="flex h-screen overflow-hidden">
-        <div id="sidebar"
-            class="w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transform transition-transform duration-300 ease-in-out md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full shadow-2xl">
-            <div class="p-6 border-b border-gray-700 flex items-center">
-                <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
+    <div id="sidebar" class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white 
+                                 transform transition-transform duration-300 ease-in-out 
+                                 md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full 
+                                 shadow-2xl custom-scrollbar">
+            <div class="p-6 border-b border-blue-700 flex items-center">
+                <i class="fas fa-graduation-cap text-white text-2xl mr-3"></i>
                 <h1 class="text-2xl font-bold text-white">Youdemy</h1>
             </div>
 
             <nav class="mt-6">
-                <a href="home.php" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-book mr-4 text-green-400 group-hover:text-white transition"></i>
+                <a href="home.php" class="block py-3 px-6 hover:bg-blue-700 transition flex items-center group">
+                    <i class="fas fa-book mr-4 text-blue-300 group-hover:text-white"></i>
                     Mes Cours
                 </a>
-                <a href="statistiques.php" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-chart-line mr-4 text-purple-400 group-hover:text-white transition"></i>
+                <a href="statistiques.php" class="block py-3 px-6 hover:bg-blue-700 transition flex items-center group">
+                    <i class="fas fa-chart-line mr-4 text-blue-300 group-hover:text-white"></i>
                     Statistiques
                 </a>
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-cog mr-4 text-gray-400 group-hover:text-white transition"></i>
+                <a href="#" class="block py-3 px-6 hover:bg-blue-700 transition flex items-center group">
+                    <i class="fas fa-cog mr-4 text-blue-300 group-hover:text-white"></i>
                     Paramètres
                 </a>
             </nav>

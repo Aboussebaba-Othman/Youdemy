@@ -1,3 +1,17 @@
+<?php
+session_start();
+
+require_once "../../../vendor/autoload.php";
+use App\Controllers\Teacher\StatisticController;
+
+try {
+    $statistiquesController = new StatisticController();
+    $data = $statistiquesController->getStatistics();
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -88,13 +102,19 @@
 
             <main class="flex-1 overflow-y-auto  animate-fade-in custom-scrollbar">
                 <div class="container mx-auto px-4 py-8">
+                    <?php if (isset($data['erreur'])): ?>
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Erreur !</strong>
+                        <span class="block sm:inline"><?= htmlspecialchars($data['erreur']) ?></span>
+                    </div>
+                    <?php endif; ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 
-                        hover:shadow-lg transition transform hover:-translate-y-2">
+                        <div
+                            class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 ">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <h3 class="text-gray-500 text-sm uppercase mb-2">Total Cours</h3>
-                                    <p class="text-3xl font-bold text-blue-600">24</p>
+                                    <p class="text-3xl font-bold text-blue-600"><?= $data['totalCourses'] ?? 0 ?></p>
                                 </div>
                                 <div class="bg-blue-50 rounded-full p-3">
                                     <i class="fas fa-book text-blue-500 text-2xl"></i>
@@ -102,12 +122,11 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 
-                        hover:shadow-lg transition transform hover:-translate-y-2">
+                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 ">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <h3 class="text-gray-500 text-sm uppercase mb-2">Total Étudiants</h3>
-                                    <p class="text-3xl font-bold text-green-600">456</p>
+                                    <p class="text-3xl font-bold text-green-600"><?= $data['totalStudents'] ?? 0 ?></p>
                                 </div>
                                 <div class="bg-green-50 rounded-full p-3">
                                     <i class="fas fa-users text-green-500 text-2xl"></i>
@@ -117,85 +136,69 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-xl font-bold text-gray-800">Top 3 Cours</h2>
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-graduation-cap text-blue-500 mr-3"></i>
+                                    Top 3 Cours
+                                </h2>
                             </div>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+                            <div class="p-6">
+                                <?php foreach ($data['top3Courses'] as $index => $cours): ?>
+                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg mb-4 
+                            transition duration-300 hover:bg-blue-50">
                                     <div class="flex items-center">
-                                        <span class="text-2xl font-bold text-gray-300 mr-4">1</span>
+                                        <span class="text-2xl font-bold text-gray-300 mr-4">
+                                            <?= $index + 1 ?>
+                                        </span>
                                         <div>
-                                            <h3 class="font-semibold text-gray-800">Développement Web Complet</h3>
-                                            <p class="text-sm text-gray-500">156 Étudiants</p>
+                                            <h3 class="font-semibold text-gray-800">
+                                                <?= htmlspecialchars($cours['title']) ?>
+                                            </h3>
+                                            <p class="text-sm text-gray-500 flex items-center">
+                                                <i class="fas fa-users mr-2 text-blue-500"></i>
+                                                <?= $cours['enrollments'] ?> Étudiants
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                                    <div class="flex items-center">
-                                        <span class="text-2xl font-bold text-gray-300 mr-4">2</span>
-                                        <div>
-                                            <h3 class="font-semibold text-gray-800">Data Science Avancé</h3>
-                                            <p class="text-sm text-gray-500">124 Étudiants</p>
-                                        </div>
+                                    <div class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
+                                        Populaire
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                                    <div class="flex items-center">
-                                        <span class="text-2xl font-bold text-gray-300 mr-4">3</span>
-                                        <div>
-                                            <h3 class="font-semibold text-gray-800">Design UX/UI Moderne</h3>
-                                            <p class="text-sm text-gray-500">98 Étudiants</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-xl font-bold text-gray-800">Top 3 Étudiants</h2>
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-user-graduate text-green-500 mr-3"></i>
+                                    Top 3 Étudiants
+                                </h2>
                             </div>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+                            <div class="p-6">
+                                <?php foreach ($data['top3Students'] as $index => $etudiant): ?>
+                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg mb-4
+                            transition duration-300 hover:bg-green-50">
                                     <div class="flex items-center">
-                                        <span class="text-2xl font-bold text-gray-300 mr-4">1</span>
+                                        <span class="text-2xl font-bold text-gray-300 mr-4">
+                                            <?= $index + 1 ?>
+                                        </span>
                                         <div>
-                                            <h3 class="font-semibold text-gray-800">Jean Dupont</h3>
-                                            <p class="text-sm text-gray-500">Développement Web</p>
-                                            <p class="text-xs text-gray-400">jean.dupont@email.com</p>
+                                            <h3 class="font-semibold text-gray-800">
+                                                <?= htmlspecialchars($etudiant['name']) ?>
+                                            </h3>
+                                            <p class="text-sm text-gray-500 flex items-center">
+                                                <i class="fas fa-book mr-2 text-green-500"></i>
+                                                <?= $etudiant['course_count'] ?> Cours
+                                            </p>
                                         </div>
                                     </div>
-                                    <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
-                                        5 Cours
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                                    <div class="flex items-center">
-                                        <span class="text-2xl font-bold text-gray-300 mr-4">2</span>
-                                        <div>
-                                            <h3 class="font-semibold text-gray-800">Marie Martin</h3>
-                                            <p class="text-sm text-gray-500">Data Science</p>
-                                            <p class="text-xs text-gray-400">marie.martin@email.com</p>
-                                        </div>
+                                    <div class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
+                                        Top Étudiant
                                     </div>
-                                    <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
-                                        4 Cours
-                                    </span>
                                 </div>
-                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                                    <div class="flex items-center">
-                                        <span class="text-2xl font-bold text-gray-300 mr-4">3</span>
-                                        <div>
-                                            <h3 class="font-semibold text-gray-800">Pierre Dubois</h3>
-                                            <p class="text-sm text-gray-500">Design UX/UI</p>
-                                            <p class="text-xs text-gray-400">pierre.dubois@email.com</p>
-                                        </div>
-                                    </div>
-                                    <span class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm">
-                                        3 Cours
-                                    </span>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
@@ -204,26 +207,7 @@
         </div>
     </div>
 
-    <script>
-    document.getElementById('userProfileToggle').addEventListener('click', function() {
-        const dropdown = document.getElementById('userDropdown');
-        dropdown.classList.toggle('hidden');
-    });
-
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('userDropdown');
-        const profileToggle = document.getElementById('userProfileToggle');
-
-        if (!profileToggle.contains(event.target) && !dropdown.contains(event.target)) {
-            dropdown.classList.add('hidden');
-        }
-    });
-
-    document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('-translate-x-full');
-    });
-    </script>
+    
 </body>
 
 </html>

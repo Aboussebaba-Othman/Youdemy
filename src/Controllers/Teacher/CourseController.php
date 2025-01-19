@@ -70,7 +70,6 @@ class CourseController
         if (isset($_SESSION['user_id'])) {
             $userId = (int)$_SESSION['user_id'];
             $teacher = $this->courseModel->getTeacherByUserId($userId);
-            error_log("Teacher found: " . print_r($teacher, true));
             return $teacher;
         }
         return null;
