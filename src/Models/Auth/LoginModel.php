@@ -1,5 +1,6 @@
 <?php
 namespace App\Models\Auth;
+
 use App\Classes\Role;
 use App\Classes\User;
 use App\Config\DatabaseConnection;
@@ -14,34 +15,51 @@ class LoginModel {
     }
 
     public function findUserByEmail($email) {
-        $query = "SELECT users.id, users.name, users.email, users.password, users.status,
-                         roles.id as role_id, roles.name as role
+        $query = "SELECT 
+                    users.id, 
+                    users.name, 
+                    users.email, 
+                    users.password, 
+                    users.status,
+                    roles.id as role_id, 
+                    roles.name as role_name
                   FROM users
                   JOIN roles ON roles.id = users.role_id
                   WHERE users.email = :email";
 
         try {
+            error_log("Login query: " . $query);
+            error_log("Searching for email: " . $email);
+
             $stmt = $this->connexion->prepare($query);
             $stmt->bindParam(":email", $email, PDO::PARAM_STR);
             $stmt->execute();
             
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             
+            error_log("Database query result: " . print_r($row, true));
+
             if (!$row) {
+                error_log("No user found with email: " . $email);
                 return null;
             }
 
-            $role = new Role($row["role_id"], $row["role"]);
+            $role = new Role(
+                $row['role_id'], 
+                $row['role_name']
+            );
+
             return new User(
                 $row['id'],
-                $row["name"],
-                $row["email"],
+                $row['name'],
+                $row['email'],
                 $role,
-                $row["password"],
-                $row["status"]
+                $row['password'],
+                $row['status']
             );
+
         } catch (\PDOException $e) {
-            error_log("Database error: " . $e->getMessage());
+            error_log("Database error in findUserByEmail: " . $e->getMessage());
             return null;
         }
     }

@@ -17,6 +17,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,18 +26,19 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#a435f0',
-                        secondary: '#1c1d1f',
-                    }
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#a435f0',
+                    secondary: '#1c1d1f',
                 }
             }
         }
+    }
     </script>
 </head>
+
 <body class="bg-white">
     <nav class="fixed w-full bg-base-300 shadow-lg z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,22 +49,27 @@ try {
                         <span class="text-2xl font-bold text-primary font-serif font-bold">Youdemy</span>
                     </a>
                 </div>
-    
+
                 <div class="hidden md:flex items-center flex-1 px-8">
-                    
+
                     <div class="flex-1 px-8">
                         <div class="relative">
-                            <input type="text" placeholder="Rechercher un cours..." class="w-full pl-10 pr-4 py-2 bg-base-200 border border-accent rounded-full focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                            <input type="text" placeholder="Rechercher un cours..."
+                                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-accent rounded-full focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                             <i class="fas fa-search absolute left-3 top-3 text-accent"></i>
                         </div>
                     </div>
                 </div>
-    
+
                 <div class="hidden md:flex items-center space-x-4">
-                    <button class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md"><a href="auth/login.php">Login</a></button>
-                    <button class="px-6 py-2 bg-primary text-base-300 rounded-full hover:bg-secondary transition-colors duration-200 shadow-md hover:shadow-lg"><a href="auth/register.php">Register</a></button>
+                    <button
+                        class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md"><a
+                            href="auth/login.php">Login</a></button>
+                    <button
+                        class="px-6 py-2 bg-primary text-base-300 rounded-full hover:bg-secondary transition-colors duration-200 shadow-md hover:shadow-lg"><a
+                            href="auth/register.php">Register</a></button>
                 </div>
-    
+
                 <div class="md:hidden">
                     <button class="text-primary hover:text-secondary transition-colors" id="mobile-menu-button">
                         <i class="fas fa-bars text-xl"></i>
@@ -72,59 +79,104 @@ try {
         </div>
     </nav>
 
-    <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80);">
+    <div class="hero min-h-screen"
+        style="background-image: url(https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80);">
         <div class="hero-overlay bg-opacity-60"></div>
         <div class="hero-content text-center text-neutral-content">
             <div class="max-w-md">
                 <h1 class="mb-5 text-5xl font-bold">Welcome to Youdemy</h1>
-                <p class="mb-5">Revolutionize your learning experience with our interactive and personalized online courses.</p>
+                <p class="mb-5">Revolutionize your learning experience with our interactive and personalized online
+                    courses.</p>
                 <button class="btn btn-primary">Get Started</button>
             </div>
         </div>
     </div>
 
-    <section id="catalog" class="py-20">
-    <div class="container mx-auto px-4">
-        <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
-            <h2 class="text-3xl font-bold mb-8 text-center">Popular Courses</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <section id="catalog" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    Available Courses
+                </h2>
+                <p class="text-gray-600 max-w-xl mx-auto">
+                    Explore our collection of courses designed to help you develop
+                    new skills and achieve your professional goals.
+                </p>
+            </div>
+
+            <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <?php foreach ($courses as $course): ?>
-                    <div class="bg-white shadow-lg rounded-lg overflow-hidden ">
-                        <?php if (!empty($course['image'])): ?>
-                            <img src="<?=$course['image']?>" 
-                                 alt="<?= htmlspecialchars($course['title']) ?>" 
-                                 class="w-full">
-                        <?php endif; ?>
-                        
-                        <div class="p-4">
-                            <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($course['title']) ?></h3>
-                            <p class="text-gray-600 mb-4"><?= htmlspecialchars($course['description']) ?></p>
-                            <a href="#" class="text-blue-600 font-bold">Learn More &rarr;</a>
+                <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <?php if (!empty($course['image'])): ?>
+                    <div class="relative">
+                        <img src="<?= htmlspecialchars($course['image']) ?>"
+                            alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
+                            <span class="text-xs font-medium text-gray-700">
+                                <?= htmlspecialchars($course['category_name'] ?? 'General') ?>
+                            </span>
                         </div>
                     </div>
+                    <?php endif; ?>
+
+                    <div class="p-5">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                                <?= htmlspecialchars($course['title']) ?>
+                            </h3>
+                            <div class="flex items-center text-gray-600 text-sm">
+                                <i class="fas fa-chalkboard-teacher text-blue-500 mr-2"></i>
+                                <?= htmlspecialchars($course['teacher_name'] ?? 'Undefined Instructor') ?>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                            <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
+                        </p>
+
+                        <div class="flex items-center text-gray-600 text-sm mb-4">
+                            <i class="fas fa-users text-blue-500 mr-2"></i>
+                            <?= $course['students_count'] ?? 0 ?> Students
+                        </div>
+
+                        <a href="course-details/<?= $course['id'] ?>" class="w-full text-center block bg-blue-500 text-white 
+                                       px-4 py-2 rounded-lg text-sm 
+                                       hover:bg-blue-600 transition">
+                            View Details
+                        </a>
+                    </div>
+                </div>
                 <?php endforeach; ?>
             </div>
-        <?php else: ?>
-            <p class="text-center">No courses available at the moment.</p>
-        <?php endif; ?>
-    </div>
-</section>
+            <?php else: ?>
+            <div class="text-center bg-white p-12 rounded-xl shadow-md">
+                <i class="fas fa-graduation-cap text-5xl text-blue-500 mb-4"></i>
+                <p class="text-xl text-gray-700 mb-2">
+                    No courses available at the moment
+                </p>
+                <p class="text-gray-500">
+                    Stay tuned, new courses are coming soon!
+                </p>
+            </div>
+            <?php endif; ?>
+        </div>
+    </section>
 
     <section class="py-12 bg-gray-100">
         <div class="container mx-auto px-4">
-        <?php if (!empty($categories)): ?>
+            <?php if (!empty($categories)): ?>
             <h2 class="text-3xl font-bold mb-8 text-center">Course Categories</h2>
-            
+
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <?php foreach ($categories as $category): ?>
+                <?php foreach ($categories as $category): ?>
                 <div class="btn btn-outline"><?= htmlspecialchars($category['title']) ?></div>
                 <?php endforeach; ?>
             </div>
-            
+
             <?php endif; ?>
         </div>
-        
+
     </section>
 
     <section class="py-12 bg-white">
@@ -162,7 +214,8 @@ try {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="card bg-base-100 shadow-xl">
                     <div class="card-body">
-                        <p>"Youdemy has transformed my career. The courses are top-notch and the instructors are amazing!"</p>
+                        <p>"Youdemy has transformed my career. The courses are top-notch and the instructors are
+                            amazing!"</p>
                         <div class="flex items-center mt-4">
                             <div class="avatar">
                                 <div class="w-12 rounded-full">
@@ -178,7 +231,8 @@ try {
                 </div>
                 <div class="card bg-base-100 shadow-xl">
                     <div class="card-body">
-                        <p>"The flexibility of Youdemy allowed me to learn new skills while working full-time. Highly recommended!"</p>
+                        <p>"The flexibility of Youdemy allowed me to learn new skills while working full-time. Highly
+                            recommended!"</p>
                         <div class="flex items-center mt-4">
                             <div class="avatar">
                                 <div class="w-12 rounded-full">
@@ -194,7 +248,8 @@ try {
                 </div>
                 <div class="card bg-base-100 shadow-xl">
                     <div class="card-body">
-                        <p>"As an instructor, I love how Youdemy empowers me to share my knowledge with students worldwide."</p>
+                        <p>"As an instructor, I love how Youdemy empowers me to share my knowledge with students
+                            worldwide."</p>
                         <div class="flex items-center mt-4">
                             <div class="avatar">
                                 <div class="w-12 rounded-full">
@@ -242,45 +297,50 @@ try {
 
     <footer class="bg-secondary text-base-300 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 class="text-lg  mb-4  font-bold">À propos de Youdemy</h3>
-              <ul class="space-y-2">
-                <li><a href="#" class="hover:text-base-200 transition-colors">Qui sommes-nous</a></li>
-                <li><a href="#" class="hover:text-base-200 transition-colors">Carrières</a></li>
-                <li><a href="#" class="hover:text-base-200 transition-colors">Presse</a></li>
-              </ul>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg  mb-4  font-bold">À propos de Youdemy</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Qui sommes-nous</a></li>
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Carrières</a></li>
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Presse</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg  mb-4  font-bold">Ressources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Tutoriels</a></li>
+                        <li><a href="#" class="hover:text-base-200 transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg  mb-4  font-bold">Communauté</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Forum</a></li>
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Événements</a></li>
+                        <li><a href="#" class="hover:text-base-200 transition-colors">Partenaires</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg  mb-4  font-bold">Suivez-nous</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i
+                                class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i
+                                class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
             </div>
-            <div>
-              <h3 class="text-lg  mb-4  font-bold">Ressources</h3>
-              <ul class="space-y-2">
-                <li><a href="#" class="hover:text-base-200 transition-colors">Blog</a></li>
-                <li><a href="#" class="hover:text-base-200 transition-colors">Tutoriels</a></li>
-                <li><a href="#" class="hover:text-base-200 transition-colors">FAQ</a></li>
-              </ul>
+            <div class="mt-8 pt-8 border-t border-accent text-center">
+                <p>&copy; 2023 Youdemy. Tous droits réservés.</p>
             </div>
-            <div>
-              <h3 class="text-lg  mb-4  font-bold">Communauté</h3>
-              <ul class="space-y-2">
-                <li><a href="#" class="hover:text-base-200 transition-colors">Forum</a></li>
-                <li><a href="#" class="hover:text-base-200 transition-colors">Événements</a></li>
-                <li><a href="#" class="hover:text-base-200 transition-colors">Partenaires</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 class="text-lg  mb-4  font-bold">Suivez-nous</h3>
-              <div class="flex space-x-4">
-                <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-2xl hover:text-base-200 transition-colors"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="mt-8 pt-8 border-t border-accent text-center">
-            <p>&copy; 2023 Youdemy. Tous droits réservés.</p>
-          </div>
         </div>
-      </footer>
+    </footer>
 </body>
+
 </html>
