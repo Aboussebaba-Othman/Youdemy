@@ -71,7 +71,7 @@ class LoginController {
                         $redirect = '../teacher/home.php';
                         break;
                     case 'student':
-                        $redirect = '../index.php';
+                        $redirect = '../student/courseCatalog.php';
                         break;
                     default:
                         error_log("Unexpected role for redirection: " . $roleName);

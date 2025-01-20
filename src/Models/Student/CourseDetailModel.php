@@ -4,7 +4,7 @@ namespace App\Models\Student;
 use App\Config\DatabaseConnection;
 use PDO;
 
-class DetailCourseModel {
+class CourseDetailModel {
     private $connection;
 
     public function __construct() {
@@ -81,6 +81,40 @@ class DetailCourseModel {
         } catch (\PDOException $e) {
             error_log("Error checking enrollment: " . $e->getMessage());
             return false;
+        }
+    }
+    public function enrollStudent($courseId, $userId) {
+        try {
+            $this->connection->beginTransaction();
+    
+            $sql = "SELECT id FROM Students WHERE user_id = :user_id";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute(['user_id' => $userId]);
+            $studentId = $stmt->fetchColumn();
+    
+            if (!$studentId) {
+                throw new \Exception("Student not found");
+            }
+    
+            if ($this->isUserEnrolled($courseId, $userId)) {
+                throw new \Exception("Already enrolled in this course");
+            }
+    
+            $sql = "INSERT INTO Enrollment (student_id, course_id, enrollment_date) 
+                    VALUES (:student_id, :course_id, NOW())";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute([
+                'student_id' => $studentId,
+                'course_id' => $courseId
+            ]);
+    
+            $this->connection->commit();
+            return true;
+    
+        } catch (\PDOException $e) {
+            $this->connection->rollBack();
+            error_log("Database error in enrollStudent: " . $e->getMessage());
+            throw new \Exception("Error enrolling in course");
         }
     }
 }

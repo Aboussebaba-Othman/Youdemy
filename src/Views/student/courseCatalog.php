@@ -1,5 +1,5 @@
 <?php
-require_once "../../vendor/autoload.php";
+require_once "../../../vendor/autoload.php";
 use App\Controllers\Admin\CourseController;
 use App\Controllers\Admin\CategoryController;
 
@@ -63,6 +63,9 @@ try {
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
+                <button
+                        class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md"><a
+                            href="">Mes course</a></button>
                     <button
                         class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md"><a
                             href="auth/login.php">Login</a></button>
@@ -79,19 +82,6 @@ try {
             </div>
         </div>
     </nav>
-
-    <div class="hero min-h-screen"
-        style="background-image: url(https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80);">
-        <div class="hero-overlay bg-opacity-60"></div>
-        <div class="hero-content text-center text-neutral-content">
-            <div class="max-w-md">
-                <h1 class="mb-5 text-5xl font-bold">Welcome to Youdemy</h1>
-                <p class="mb-5">Revolutionize your learning experience with our interactive and personalized online
-                    courses.</p>
-                <button class="btn btn-primary">Get Started</button>
-            </div>
-        </div>
-    </div>
 
     <section id="catalog" class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
@@ -141,7 +131,7 @@ try {
                             <?= $course['students_count'] ?? 0 ?> Students
                         </div>
 
-                        <a href="auth/login.php" class="w-full text-center block bg-blue-500 text-white 
+                        <a href="courseDetail.php?id=<?= $course['id'] ?>" class="w-full text-center block bg-blue-500 text-white 
                                        px-4 py-2 rounded-lg text-sm 
                                        hover:bg-blue-600 transition">
                             View Details
@@ -161,138 +151,6 @@ try {
                 </p>
             </div>
             <?php endif; ?>
-        </div>
-    </section>
-
-    <section class="py-12 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <?php if (!empty($categories)): ?>
-            <h2 class="text-3xl font-bold mb-8 text-center">Course Categories</h2>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <?php foreach ($categories as $category): ?>
-                <div class="btn btn-outline"><?= htmlspecialchars($category['title']) ?></div>
-                <?php endforeach; ?>
-            </div>
-
-            <?php endif; ?>
-        </div>
-
-    </section>
-
-    <section class="py-12 bg-white">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold mb-8 text-center">Why Choose Youdemy?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body items-center text-center">
-                        <i class="fas fa-graduation-cap text-4xl mb-4 text-primary"></i>
-                        <h3 class="card-title">Expert Instructors</h3>
-                        <p>Learn from industry professionals and experienced educators.</p>
-                    </div>
-                </div>
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body items-center text-center">
-                        <i class="fas fa-clock text-4xl mb-4 text-primary"></i>
-                        <h3 class="card-title">Flexible Learning</h3>
-                        <p>Study at your own pace, anytime and anywhere.</p>
-                    </div>
-                </div>
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body items-center text-center">
-                        <i class="fas fa-certificate text-4xl mb-4 text-primary"></i>
-                        <h3 class="card-title">Certificates</h3>
-                        <p>Earn recognized certificates upon course completion.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="py-12 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold mb-8 text-center">Student Reviews</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <p>"Youdemy has transformed my career. The courses are top-notch and the instructors are
-                            amazing!"</p>
-                        <div class="flex items-center mt-4">
-                            <div class="avatar">
-                                <div class="w-12 rounded-full">
-                                    <img src="https://api.dicebear.com/6.x/initials/svg?seed=JD" alt="John Doe" />
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <p class="font-bold">John Doe</p>
-                                <p class="text-sm">Web Developer</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <p>"The flexibility of Youdemy allowed me to learn new skills while working full-time. Highly
-                            recommended!"</p>
-                        <div class="flex items-center mt-4">
-                            <div class="avatar">
-                                <div class="w-12 rounded-full">
-                                    <img src="https://api.dicebear.com/6.x/initials/svg?seed=JS" alt="Jane Smith" />
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <p class="font-bold">Jane Smith</p>
-                                <p class="text-sm">Data Analyst</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <p>"As an instructor, I love how Youdemy empowers me to share my knowledge with students
-                            worldwide."</p>
-                        <div class="flex items-center mt-4">
-                            <div class="avatar">
-                                <div class="w-12 rounded-full">
-                                    <img src="https://api.dicebear.com/6.x/initials/svg?seed=MB" alt="Mike Brown" />
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <p class="font-bold">Mike Brown</p>
-                                <p class="text-sm">Marketing Expert</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="py-12 bg-secondary text-white">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold mb-8 text-center">Youdemy in Numbers</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div>
-                    <p class="text-4xl font-bold">100,000+</p>
-                    <p class="text-xl mt-2">Students</p>
-                </div>
-                <div>
-                    <p class="text-4xl font-bold">1,000+</p>
-                    <p class="text-xl mt-2">Courses</p>
-                </div>
-                <div>
-                    <p class="text-4xl font-bold">500+</p>
-                    <p class="text-xl mt-2">Expert Instructors</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="py-12 bg-primary text-white">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-4">Ready to Start Learning?</h2>
-            <p class="mb-8">Join thousands of students and transform your skills today!</p>
-            <button class="btn btn-secondary btn-lg">Sign Up Now</button>
         </div>
     </section>
 
