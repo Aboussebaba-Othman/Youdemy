@@ -46,6 +46,7 @@ class StudentController
     {
         if (isset($_SESSION['user_id'])) {
             return $this->courseModel->getTeacherByUserId($_SESSION['user_id']);
+            
         }
         return null;
     }
