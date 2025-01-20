@@ -49,21 +49,17 @@ try {
             </div>
 
             <nav class="mt-6">
-                <a href="home.php" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-tachometer-alt mr-4 text-blue-400 group-hover:text-white transition"></i>
-                    Tableau de Bord
-                </a>
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-book mr-4 text-green-400 group-hover:text-white transition"></i>
+                <a href="home.php" class="block py-3 px-6 hover:bg-blue-700 transition flex items-center group">
+                    <i class="fas fa-book mr-4 text-blue-300 group-hover:text-white"></i>
                     Mes Cours
                 </a>
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-chart-line mr-4 text-purple-400 group-hover:text-white transition"></i>
+                <a href="statistiques.php" class="block py-3 px-6 hover:bg-blue-700 transition flex items-center group">
+                    <i class="fas fa-chart-line mr-4 text-blue-300 group-hover:text-white"></i>
                     Statistiques
                 </a>
-                <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition flex items-center group">
-                    <i class="fas fa-cog mr-4 text-gray-400 group-hover:text-white transition"></i>
-                    Paramètres
+                <a href="studentsList.php" class="block py-3 px-6 hover:bg-blue-700 transition flex items-center group">
+                    <i class="fas fa-users text-blue-300 mr-4 group-hover:text-white"></i>
+                    Liste des Étudiants
                 </a>
             </nav>
         </div>

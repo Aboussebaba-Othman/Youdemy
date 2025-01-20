@@ -74,36 +74,36 @@ class CourseModel
     }
 
     public function getTeacherByUserId($userId): ?Teacher
-    {
-        try {
-            $stmt = $this->connection->prepare("
-                SELECT teachers.id,  teachers.specialty, users.id as user_id, users.name, users.email
-                FROM teachers 
-                JOIN users ON teachers.user_id = users.id
-                WHERE users.id = ?
-            ");
-            $stmt->execute([$userId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+{
+    try {
+        $stmt = $this->connection->prepare("
+            SELECT t.id, t.specialty, u.id as user_id, u.name, u.email
+            FROM Teachers t
+            JOIN Users u ON t.user_id = u.id
+            WHERE u.id = ? AND u.role_id = (SELECT id FROM Roles WHERE name = 'teacher')
+        ");
+        $stmt->execute([$userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($row) {
-                return new Teacher(
-                    $row['id'],
-                    $row['specialty'],
-                    new User(
-                        $row['user_id'],
-                        $row['name'],
-                        $row['email'],
-                        null,
-                        null, 
-                        null 
-                    )
-                );
-            }
-        } catch (PDOException $e) {
-            error_log("Error getting teacher: " . $e->getMessage());
+        if ($row) {
+            return new Teacher(
+                $row['id'],
+                $row['specialty'],
+                new User(
+                    $row['user_id'],
+                    $row['name'],
+                    $row['email'],
+                    null,
+                    null,
+                    null
+                )
+            );
         }
-        return null;
+    } catch (PDOException $e) {
+        error_log("Error getting teacher: " . $e->getMessage());
     }
+    return null;
+}
 
     public function getTeacherCourses($teacherId)
     {
@@ -258,4 +258,16 @@ class CourseModel
             throw new Exception("Error updating course: " . $e->getMessage());
         }
     }
+public function getCourseNames($teacherId = null)
+{
+    try {
+        $sql = "SELECT id, title FROM Courses WHERE teacher_id = :teacher_id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['teacher_id' => $teacherId]);
+        return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+    } catch (\PDOException $e) {
+        error_log("Error getting course names: " . $e->getMessage());
+        return [];
+    }
+}
 }
