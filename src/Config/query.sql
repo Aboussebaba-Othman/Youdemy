@@ -68,7 +68,7 @@ CREATE TABLE Courses (
 );
 
 -- Course_Tag relation table (Many-to-Many)
-CREATE TABLE Course_Tag (
+CREATE TABLE CourseTag (
     course_id INT,
     tag_id INT,
     PRIMARY KEY (course_id, tag_id),
