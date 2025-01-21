@@ -3,29 +3,25 @@ require_once "../../../vendor/autoload.php";
 use App\Controllers\Admin\CourseController;
 use App\Controllers\Admin\CategoryController;
 
-try {
 
     $course = new CourseController();
     $courses = $course->index();
     $categoryController = new CategoryController();
     $categories = $categoryController->getCategories();
 
-} catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
-}
-
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
-
+<html lang="fr" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youdemy - Online Learning Platform</title>
+    <title>Youdemy - Catalogue de Cours</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <script>
     tailwind.config = {
         theme: {
@@ -38,10 +34,24 @@ try {
         }
     }
     </script>
+    
+    <style>
+        .nav-hover:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        .course-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 
-<body class="bg-white">
-<nav class="fixed w-full bg-white shadow-md z-50">
+<body class="bg-gray-50">
+    <nav class="fixed w-full bg-white shadow-md z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center">
@@ -91,75 +101,83 @@ try {
             </div>
         </div>
     </nav>
-
-    <section id="catalog" class="py-16 bg-gray-50">
+    <section id="catalog" class="py-24 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                    Available Courses
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">
+                    Catalogue de Cours
                 </h2>
                 <p class="text-gray-600 max-w-xl mx-auto">
-                    Explore our collection of courses designed to help you develop
-                    new skills and achieve your professional goals.
+                    Explorez notre collection de cours conçus pour vous aider à développer 
+                    de nouvelles compétences et à atteindre vos objectifs professionnels.
                 </p>
             </div>
 
-            <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <?php foreach ($courses as $course): ?>
-                <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <?php if (!empty($course['image'])): ?>
-                    <div class="relative">
-                        <img src="<?= htmlspecialchars($course['image']) ?>"
-                            alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-48 object-cover">
-                        <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
-                            <span class="text-xs font-medium text-gray-700">
-                                <?= htmlspecialchars($course['category_name'] ?? 'General') ?>
-                            </span>
-                        </div>
-                    </div>
-                    <?php endif; ?>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <?php if (!empty($courses)): ?>
+                    <?php foreach ($courses as $course): ?>
+                        <div class="course-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-lg">
+                            <?php if (!empty($course['image'])): ?>
+                                <div class="relative">
+                                    <img 
+                                        src="<?= htmlspecialchars($course['image']) ?>" 
+                                        alt="<?= htmlspecialchars($course['title']) ?>" 
+                                        class="w-full h-56 object-cover"
+                                    >
+                                    <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
+                                        <span class="text-xs font-medium text-gray-700">
+                                            <?= htmlspecialchars($course['category_name'] ?? 'Général') ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
 
-                    <div class="p-5">
-                        <div class="mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
-                                <?= htmlspecialchars($course['title']) ?>
-                            </h3>
-                            <div class="flex items-center text-gray-600 text-sm">
-                                <i class="fas fa-chalkboard-teacher text-blue-500 mr-2"></i>
-                                <?= htmlspecialchars($course['teacher_name'] ?? 'Undefined Instructor') ?>
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-3">
+                                    <?= htmlspecialchars($course['title']) ?>
+                                </h3>
+                                
+                                <div class="flex items-center text-gray-600 text-sm mb-3">
+                                    <i class="fas fa-chalkboard-teacher text-primary mr-2"></i>
+                                    <?= htmlspecialchars($course['teacher_name'] ?? 'Instructeur non défini') ?>
+                                </div>
+
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                                    <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
+                                </p>
+
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center text-gray-600 text-sm">
+                                        <i class="fas fa-users text-primary mr-2"></i>
+                                        <?= $course['students_count'] ?? 0 ?> Étudiants
+                                    </div>
+                                    <span class="text-sm font-semibold text-primary">
+                                        <?= htmlspecialchars($course['price'] ?? 'Gratuit') ?>
+                                    </span>
+                                </div>
+
+                                <a 
+                                    href="courseDetail.php?id=<?= $course['id'] ?>" 
+                                    class="w-full block text-center bg-primary text-white px-4 py-3 rounded-lg 
+                                           hover:bg-secondary transition-colors"
+                                >
+                                    Voir les détails
+                                </a>
                             </div>
                         </div>
-
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                            <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-span-full text-center bg-white p-12 rounded-xl shadow-md">
+                        <i class="fas fa-graduation-cap text-5xl text-primary mb-4"></i>
+                        <p class="text-xl text-gray-700 mb-2">
+                            Aucun cours disponible pour le moment
                         </p>
-
-                        <div class="flex items-center text-gray-600 text-sm mb-4">
-                            <i class="fas fa-users text-blue-500 mr-2"></i>
-                            <?= $course['students_count'] ?? 0 ?> Students
-                        </div>
-
-                        <a href="courseDetail.php?id=<?= $course['id'] ?>" class="w-full text-center block bg-blue-500 text-white 
-                                       px-4 py-2 rounded-lg text-sm 
-                                       hover:bg-blue-600 transition">
-                            View Details
-                        </a>
+                        <p class="text-gray-500">
+                            Restez à l'écoute, de nouveaux cours arrivent bientôt !
+                        </p>
                     </div>
-                </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
-            <?php else: ?>
-            <div class="text-center bg-white p-12 rounded-xl shadow-md">
-                <i class="fas fa-graduation-cap text-5xl text-blue-500 mb-4"></i>
-                <p class="text-xl text-gray-700 mb-2">
-                    No courses available at the moment
-                </p>
-                <p class="text-gray-500">
-                    Stay tuned, new courses are coming soon!
-                </p>
-            </div>
-            <?php endif; ?>
         </div>
     </section>
 
@@ -209,6 +227,11 @@ try {
             </div>
         </div>
     </footer>
+    <script>
+        document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
-
 </html>

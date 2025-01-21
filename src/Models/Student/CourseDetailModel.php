@@ -1,6 +1,7 @@
 <?php
 namespace App\Models\Student;
-
+use App\Classes\VideoContent;
+use App\Classes\TextContent;
 use App\Config\DatabaseConnection;
 use PDO;
 
@@ -12,6 +13,21 @@ class CourseDetailModel {
         $this->connection = $db->connect();
     }
 
+    public function getCourseContent($courseId) {
+        
+            $sql = "SELECT content FROM Courses WHERE id = :id";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute(['id' => $courseId]);
+            
+            $content = $stmt->fetchColumn();
+            
+            if (strpos($content, 'https') === 0) {
+                return new VideoContent($content);
+            }
+            
+            return new TextContent($content);
+            
+    }
     public function getCourseById($courseId) {
         try {
             $sql = "SELECT c.*, cat.title as category_name 
@@ -28,7 +44,6 @@ class CourseDetailModel {
             return null;
         }
     }
-
     public function getTeacherByCourseId($courseId) {
         try {
             $sql = "SELECT u.name, u.email, t.specialty

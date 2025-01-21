@@ -3,52 +3,53 @@ session_start();
 require_once "../../../vendor/autoload.php";
 
 use App\Controllers\Student\CourseDetailController;
-
-try {
-    // Check if user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: /auth/login.php");
-        exit();
-    }
-
-    $courseId = $_GET['id'] ?? null;
-    if (!$courseId) {
-        throw new Exception("Course ID not provided");
-    }
-
+    $courseId = $_GET['id'] ;
     $controller = new CourseDetailController();
     $data = $controller->getCourseDetails($courseId);
-
-    // Extract data
-    $course = $data['course'];
-    $teacher = $data['teacher'];
-    $skills = $data['skills'];
-    
-    // Check if enrolled
-    if (!$data['isEnrolled']) {
-        header("Location: courseDetail.php?id=" . $courseId);
-        exit();
-    }
-
-    // Check if content is video (starts with https)
-    $isVideo = strpos($course['content'], 'https') === 0;
-
-} catch (Exception $e) {
-    error_log("Error: " . $e->getMessage());
-    header("Location: /error.php");
-    exit();
-}
+    $course = $data['course'];         
+    $content = $data['content'];       
+    $teacher = $data['teacher'];       
+    $skills = $data['skills'];       
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($course['title']) ?> - Contenu du Cours</title>
+    <title>Youdemy - Catalogue de Cours</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#a435f0',
+                    secondary: '#1c1d1f',
+                }
+            }
+        }
+    }
+    </script>
+    
+    <style>
+        .nav-hover:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        .course-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
 <nav class="fixed w-full bg-white shadow-md z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -98,8 +99,7 @@ try {
                 </div>
             </div>
         </div>
-    </nav>
-    <main class="container mx-auto px-4 py-24">
+    </nav>    <main class="container mx-auto px-4 py-24">
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <h1 class="text-3xl font-bold text-gray-800">
@@ -113,17 +113,11 @@ try {
             </div>
 
             <div class="p-6">
-                <?php if ($isVideo): ?>
-                    <div class="aspect-w-16 aspect-h-9 mb-6">
-                        <iframe 
-                            src="<?= htmlspecialchars($course['content']) ?>"
-                            class="w-full h-[500px] rounded-lg shadow-lg"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
+                <?php if ($content): ?>
+                    <?= $content->render() ?>
                 <?php else: ?>
-                    <div class="prose max-w-none">
-                        <?= nl2br(htmlspecialchars($course['content'])) ?>
+                    <div class="alert alert-warning">
+                        <p>Contenu non disponible.</p>
                     </div>
                 <?php endif; ?>
 
@@ -161,7 +155,6 @@ try {
             </div>
         </div>
     </main>
-
     <footer class="bg-secondary text-base-300 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">

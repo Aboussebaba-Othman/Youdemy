@@ -4,11 +4,9 @@ require_once "../../../vendor/autoload.php";
 
 use App\Controllers\Student\CourseDetailController;
 
-try {
+
     $courseId = $_GET['id'] ?? null;
-    if (!$courseId) {
-        throw new Exception("Course ID not provided");
-    }
+
 
     $controller = new CourseDetailController();
     $data = $controller->getCourseDetails($courseId);
@@ -19,25 +17,51 @@ try {
     $isLoggedIn = $data['isLoggedIn'];
     $isEnrolled = $data['isEnrolled'];
 
-} catch (Exception $e) {
-    error_log("Error: " . $e->getMessage());
-    header("Location: /error.php");
-    exit();
-}
+
 ?>
 <!DOCTYPE html>
-<html lang="fr">
-
+<html lang="fr" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> - Détails du Cours</title>
+    <title>Youdemy - <?= htmlspecialchars($course['title']) ?></title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#a435f0',
+                    secondary: '#1c1d1f',
+                }
+            }
+        }
+    }
+    </script>
+    
+    <style>
+        .course-detail-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .course-detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .skill-badge {
+            transition: transform 0.3s ease;
+        }
+        .skill-badge:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100">
-    <nav class="fixed w-full bg-white shadow-md z-50">
+<body class="bg-gray-50">
+<nav class="fixed w-full bg-white shadow-md z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center">
@@ -87,87 +111,104 @@ try {
             </div>
         </div>
     </nav>
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
+    <section class="container mx-auto px-4 py-24">
+        <div class="course-detail-card bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-8">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div>
-                        <h1 class="text-3xl font-bold mb-2">
+                        <h1 class="text-4xl font-bold mb-4">
                             <?= htmlspecialchars($course['title']) ?>
                         </h1>
-                        <span class="bg-white/20 px-3 py-1 rounded-full">
-                            <?= htmlspecialchars($course['category_name']) ?>
-                        </span>
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white/20 px-4 py-2 rounded-full text-sm font-semibold">
+                                <?= htmlspecialchars($course['category_name']) ?>
+                            </span>
+                            <span class="bg-green-500 px-4 py-2 rounded-full text-sm font-semibold">
+                                Niveau: Intermédiaire
+                            </span>
+                        </div>
                     </div>
+                    
                 </div>
             </div>
-            <div class="grid md:grid-cols-2 gap-8 p-6">
+
+            <div class="grid md:grid-cols-2 gap-8 p-8">
                 <div>
-                    <img src="<?= htmlspecialchars($course['image']) ?>" alt="<?= htmlspecialchars($course['title']) ?>"
-                        class="w-full h-64 object-cover rounded-lg shadow-md">
+                    <img 
+                        src="<?= htmlspecialchars($course['image']) ?>" 
+                        alt="<?= htmlspecialchars($course['title']) ?>" 
+                        class="w-full h-96 object-cover rounded-2xl shadow-lg transform transition hover:scale-105"
+                    >
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Description</h2>
-                    <p class="text-gray-600 mb-6">
-                        <?= nl2br(htmlspecialchars($course['description'])) ?>
-                    </p>
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Description</h2>
+                        <p class="text-gray-600 leading-relaxed">
+                            <?= nl2br(htmlspecialchars($course['description'])) ?>
+                        </p>
+                    </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Instructeur</h3>
+                    <div class="bg-gray-50 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Instructeur</h3>
                         <div class="flex items-center">
-                            <div
-                                class="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl mr-4">
+                            <div class="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl mr-6">
                                 <?= strtoupper(substr($teacher['name'], 0, 1)) ?>
                             </div>
                             <div>
-                                <h4 class="text-lg font-semibold"><?= htmlspecialchars($teacher['name']) ?></h4>
-                                <p class="text-gray-600 text-sm"><?= htmlspecialchars($teacher['email']) ?></p>
-                                <p class="text-gray-600 text-sm"><?= htmlspecialchars($teacher['specialty']) ?></p>
+                                <h4 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($teacher['name']) ?></h4>
+                                <p class="text-gray-600 text-sm flex items-center">
+                                    <i class="fas fa-envelope mr-2"></i>
+                                    <?= htmlspecialchars($teacher['email']) ?>
+                                </p>
+                                <p class="text-gray-600 text-sm">
+                                    <?= htmlspecialchars($teacher['specialty']) ?>
+                                </p>
                             </div>
                         </div>
                     </div>
 
+                    
                     <div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Compétences Acquises</h3>
-                        <div class="flex flex-wrap gap-2">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Compétences Acquises</h3>
+                        <div class="flex flex-wrap gap-3">
                             <?php foreach ($skills as $skill): ?>
-                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                                <?= htmlspecialchars($skill) ?>
-                            </span>
+                                <span class="skill-badge bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-200">
+                                    <?= htmlspecialchars($skill) ?>
+                                </span>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 border-t">
+            
+            <div class="p-8 border-t border-gray-200">
                 <?php if ($isLoggedIn): ?>
-                <?php if ($isEnrolled): ?>
-                <button disabled class="w-full bg-green-500 text-white py-3 rounded-lg cursor-not-allowed">
-                    <i class="fas fa-check mr-3"></i>
-                    Déjà inscrit
-                </button>
+                    <?php if ($isEnrolled): ?>
+                        <button disabled class="w-full bg-green-500 text-white py-4 rounded-lg cursor-not-allowed flex items-center justify-center">
+                            <i class="fas fa-check mr-3"></i>
+                            Déjà inscrit
+                        </button>
+                    <?php else: ?>
+                        <form action="enroll.php" method="POST">
+                            <input type="hidden" name="course_id" value="<?= $course['id'] ?>">
+                            <button type="submit" class="w-full bg-primary text-white py-4 rounded-lg hover:bg-secondary transition duration-300 flex items-center justify-center">
+                                <i class="fas fa-graduation-cap mr-3"></i>
+                                S'inscrire au cours
+                            </button>
+                        </form>
+                    <?php endif; ?>
                 <?php else: ?>
-                <form action="enroll.php" method="POST">
-                    <input type="hidden" name="course_id" value="<?= $course['id'] ?>">
-                    <button type="submit"
-                        class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300">
-                        <i class="fas fa-graduation-cap mr-3"></i>
-                        S'inscrire au cours
-                    </button>
-                </form>
-                <?php endif; ?>
-                <?php else: ?>
-                <a href="/auth/login.php"
-                    class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center">
-                    <i class="fas fa-sign-in-alt mr-3"></i>
-                    Connectez-vous pour vous inscrire
-                </a>
+                    <a href="/auth/login.php" class="w-full bg-primary text-white py-4 rounded-lg hover:bg-secondary transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-sign-in-alt mr-3"></i>
+                        Connectez-vous pour vous inscrire
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
-    </div>
+    </section>
+
     <footer class="bg-secondary text-base-300 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -215,5 +256,4 @@ try {
         </div>
     </footer>
 </body>
-
 </html>

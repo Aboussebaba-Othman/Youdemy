@@ -28,8 +28,6 @@ class LoginModel {
                   WHERE users.email = :email";
 
         try {
-            error_log("Login query: " . $query);
-            error_log("Searching for email: " . $email);
 
             $stmt = $this->connexion->prepare($query);
             $stmt->bindParam(":email", $email, PDO::PARAM_STR);
@@ -37,8 +35,6 @@ class LoginModel {
             
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            error_log("Database query result: " . print_r($row, true));
-
             if (!$row) {
                 error_log("No user found with email: " . $email);
                 return null;

@@ -1,22 +1,11 @@
 <?php
 session_start();
 require_once "../../../vendor/autoload.php";
-
 use App\Controllers\Student\MyCoursesController;
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: /auth/login.php");
-    exit();
-}
-
-try {
     $controller = new MyCoursesController();
     $enrolledCourses = $controller->getEnrolledCourses($_SESSION['user_id']);
-} catch (Exception $e) {
-    error_log("Error: " . $e->getMessage());
-    $error = "Une erreur est survenue lors du chargement des cours.";
-}
 ?>
+
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
 <head>
@@ -115,14 +104,11 @@ try {
                 <i class="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
                 <h2 class="text-2xl font-semibold text-gray-600">Vous n'êtes inscrit à aucun cours</h2>
                 <p class="text-gray-500 mt-2">Découvrez nos cours et commencez à apprendre !</p>
-                <a href="/" class="mt-4 px-6 py-3 bg-primary text-white rounded-full hover:bg-secondary transition-colors">
-                    Explorer les cours
-                </a>
             </div>
         <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($enrolledCourses as $course): ?>
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition hover:scale-105 hover:shadow-xl">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl">
                         <img 
                             src="<?= htmlspecialchars($course['image']) ?>" 
                             alt="<?= htmlspecialchars($course['title']) ?>" 

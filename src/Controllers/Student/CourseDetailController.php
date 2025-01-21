@@ -1,29 +1,23 @@
 <?php
 namespace App\Controllers\Student;
-
 use App\Models\Student\CourseDetailModel;
-
 class CourseDetailController {
     private $detailCourseModel;
-
     public function __construct() {
         $this->detailCourseModel = new CourseDetailModel();
     }
-
     public function getCourseDetails($courseId) {
-        try {
+       
             $courseDetails = $this->detailCourseModel->getCourseById($courseId);
-            if (!$courseDetails) {
-                throw new \Exception("Course not found");
-            }
-
-            $courseSkills = $this->detailCourseModel->getCourseSkills($courseId);
-
+           
+            $courseContent = $this->detailCourseModel->getCourseContent($courseId);
+            
             $teacherDetails = $this->detailCourseModel->getTeacherByCourseId($courseId);
-
+            $courseSkills = $this->detailCourseModel->getCourseSkills($courseId);
+            
             $isLoggedIn = $this->isLoggedIn();
-
             $isEnrolled = false;
+            
             if ($isLoggedIn) {
                 $userId = $this->getUserId();
                 $isEnrolled = $this->detailCourseModel->isUserEnrolled($courseId, $userId);
@@ -33,14 +27,13 @@ class CourseDetailController {
                 'course' => $courseDetails,
                 'teacher' => $teacherDetails,
                 'skills' => $courseSkills,
+                'content' => $courseContent,
                 'isLoggedIn' => $isLoggedIn,
                 'isEnrolled' => $isEnrolled
             ];
-        } catch (\Exception $e) {
-            error_log("Error in getCourseDetails: " . $e->getMessage());
-            throw $e;
-        }
+        
     }
+
     public function isLoggedIn(): bool {
         return isset($_SESSION['user_id']);
     }
@@ -53,16 +46,9 @@ class CourseDetailController {
         return $_SESSION['user_role'] ?? null;
     }
     public function enrollInCourse($courseId) {
-        try {
-            if (!$this->isLoggedIn()) {
-                throw new \Exception("User not logged in");
-            }
-    
+   
             $userId = $this->getUserId();
             return $this->detailCourseModel->enrollStudent($courseId, $userId);
-        } catch (\Exception $e) {
-            error_log("Error in enrollInCourse: " . $e->getMessage());
-            throw $e;
-        }
+        
     }
 }
