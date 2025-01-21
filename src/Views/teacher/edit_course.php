@@ -3,10 +3,12 @@ session_start();
 require_once "../../../vendor/autoload.php";
 
 use App\Controllers\Teacher\CourseController;
+use App\Controllers\Teacher\TeacherController;
+use App\Models\Teacher\CourseModel;
 
 try {
     $courseController = new CourseController();
-    
+    $courseModel = new CourseModel();
     $courseId = $_GET['id'] ?? null;
     if (!$courseId) {
         throw new \Exception("ID du cours non spécifié");
@@ -17,6 +19,15 @@ try {
             $_SESSION['success'] = "Cours mis à jour avec succès";
             header('Location: home.php');
             exit;
+        }
+    }
+    if (isset($_SESSION['user_id'])) {
+        $teacher = $courseModel->getTeacherByUserId($_SESSION['user_id']);
+        
+        if ($teacher !== null) {
+            $teacherName = $teacher->getUser()->getName();
+            
+            $teacherInitial = strtoupper(substr($teacherName, 0, 1));
         }
     }
 
@@ -42,9 +53,12 @@ try {
 
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
     <div class="flex h-screen overflow-hidden">
-        <div class="w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white">
-            <div class="p-6 border-b border-gray-700 flex items-center">
-                <img src="https://via.placeholder.com/50" class="w-10 h-10 rounded-full mr-3" alt="Logo">
+    <div id="sidebar" class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white 
+                                 transform transition-transform duration-300 ease-in-out 
+                                 md:translate-x-0 -translate-x-full fixed md:relative z-50 h-full 
+                                 shadow-2xl custom-scrollbar">
+            <div class="p-6 border-b border-blue-700 flex items-center">
+                <i class="fas fa-graduation-cap text-white text-2xl mr-3"></i>
                 <h1 class="text-2xl font-bold text-white">Youdemy</h1>
             </div>
 
@@ -65,18 +79,22 @@ try {
         </div>
 
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
                 <div class="flex items-center">
-                    <a href="home.php" class="mr-4 text-gray-600 hover:text-gray-900">
-                        <i class="fas fa-arrow-left text-xl"></i>
-                    </a>
-                    <h2 class="text-2xl font-semibold text-gray-800">Modifier le Cours</h2>
+                    <button id="mobile-menu-toggle" class="md:hidden mr-4 focus:outline-none">
+                        <i class="fas fa-bars text-2xl text-gray-600"></i>
+                    </button>
+                    <h2 class="text-2xl font-semibold text-gray-800">Tableau de Bord</h2>
                 </div>
 
                 <div class="relative">
-                    <div class="flex items-center">
-                        <span class="mr-3 text-gray-700">Jean Dupont</span>
-                        <img src="https://via.placeholder.com/40" class="rounded-full w-10 h-10" alt="Profile">
+                    <div id="userProfileToggle" class="flex items-center cursor-pointer
+                                       hover:bg-gray-100 p-2 rounded-full transition">
+                        <span class="mr-3 text-gray-700 font-medium"><?= htmlspecialchars($teacherName) ?></span>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <span
+                                class="text-blue-600 text-sm font-bold"><?= htmlspecialchars($teacherInitial) ?></span>
+                        </div>
                     </div>
                 </div>
             </header>

@@ -13,6 +13,7 @@ try {
 } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -140,7 +141,7 @@ try {
                             <?= $course['students_count'] ?? 0 ?> Students
                         </div>
 
-                        <a href="course-details/<?= $course['id'] ?>" class="w-full text-center block bg-blue-500 text-white 
+                        <a href="auth/login.php" class="w-full text-center block bg-blue-500 text-white 
                                        px-4 py-2 rounded-lg text-sm 
                                        hover:bg-blue-600 transition">
                             View Details

@@ -52,13 +52,23 @@ try {
         </div>
 
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow-md p-4 flex justify-between items-center">
-                <h2 class="text-2xl font-semibold text-gray-800">Tableau de Bord</h2>
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
                 <div class="flex items-center">
-                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                        <span class="text-gray-600 text-sm"><?= $teacherInitial ?></span>
+                    <button id="mobile-menu-toggle" class="md:hidden mr-4 focus:outline-none">
+                        <i class="fas fa-bars text-2xl text-gray-600"></i>
+                    </button>
+                    <h2 class="text-2xl font-semibold text-gray-800">Tableau de Bord</h2>
+                </div>
+
+                <div class="relative">
+                    <div id="userProfileToggle" class="flex items-center cursor-pointer
+                                       hover:bg-gray-100 p-2 rounded-full transition">
+                        <span class="mr-3 text-gray-700 font-medium"><?= htmlspecialchars($teacherName) ?></span>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <span
+                                class="text-blue-600 text-sm font-bold"><?= htmlspecialchars($teacherInitial) ?></span>
+                        </div>
                     </div>
-                    <span class="text-gray-700"><?= $teacherName ?></span>
                 </div>
             </header>
 

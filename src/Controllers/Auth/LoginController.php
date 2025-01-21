@@ -12,32 +12,30 @@ class LoginController {
 
     public function login($email, $password) {
         if (empty($email) || empty($password)) {
-            error_log("Login attempt with empty email or password");
             return [
                 'status' => 'error',
                 'message' => 'Email and password are required.'
             ];
         }
+        
 
         $user = $this->loginModel->findUserByEmail($email);
-
-        error_log("Login attempt for email: " . $email);
-
         if (!$user) {
-            error_log("User not found: " . $email);
             return [
                 'status' => 'error',
                 'message' => 'Invalid credentials.'
             ];
         }
 
-        
+         if (!password_verify($password, $user->getHashedPassword())) {
+            return [
+                'status' => 'error',
+                'message' => 'Invalid credentials.'
+            ];
+        }
 
         $status = $user->getStatus();
-        error_log("User status: " . $status);
-
         $role = $user->getRole();
-        error_log("User role object: " . print_r($role, true));
         
         $roleName = '';
         try {
@@ -51,7 +49,6 @@ class LoginController {
             }
         }
 
-        error_log("Processed role name: " . $roleName);
 
         switch ($status) {
             case 'active':
@@ -71,17 +68,14 @@ class LoginController {
                         $redirect = '../teacher/home.php';
                         break;
                     case 'student':
-                        $redirect = '../index.php';
+                        $redirect = '../student/courseCatalog.php';
                         break;
                     default:
-                        error_log("Unexpected role for redirection: " . $roleName);
                         return [
                             'status' => 'error',
                             'message' => 'Invalid user role. Role: ' . $roleName
                         ];
                 }
-
-                error_log("Preparing to redirect to: " . $redirect);
 
                 return [
                     'status' => 'success',
@@ -102,7 +96,6 @@ class LoginController {
                 ];
 
             default:
-                error_log("Unhandled user status: " . $status);
                 return [
                     'status' => 'error',
                     'message' => 'Your account status is not recognized. Please contact support.'
