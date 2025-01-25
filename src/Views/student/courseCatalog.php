@@ -2,12 +2,14 @@
 require_once "../../../vendor/autoload.php";
 use App\Controllers\Admin\CourseController;
 use App\Controllers\Admin\CategoryController;
+use App\Models\Student\MyCoursesModel;
 
 session_start();
 
 try {
     $course = new CourseController();
     $categoryController = new CategoryController();
+    $MyCoursesModel = new MyCoursesModel();
     
     $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
     $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING);
@@ -23,6 +25,15 @@ try {
  } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
  }
+ if (isset($_SESSION['user_id'])) {
+    $student = $MyCoursesModel->getStudentByUserId($_SESSION['user_id']);
+    
+    if ($student !== null) {
+        $studentName = $student->getUser()->getName();
+        
+        $studentInitial = strtoupper(substr($studentName, 0, 1));
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -95,20 +106,19 @@ try {
                         <input type="text" name="q" value="<?= htmlspecialchars($keyword ?? '') ?>"
                             placeholder="Rechercher un cours..."
                             class="pl-8 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full">
-                        <button type="submit" name="search">
-                            <i class="fas fa-search text-gray-400"></i>
-                        </button>
+            
                     </form>
 
 
-                    <div class="flex items-center space-x-3">
-                        <a href="../auth/login.php" class="px-4 py-2 text-secondary hover:text-primary nav-hover">
-                            Connexion
-                        </a>
-                        <a href="../auth/register.php"
-                            class="px-6 py-2 bg-primary text-white rounded-full hover:bg-secondary glow-hover transition-colors">
-                            S'inscrire
-                        </a>
+                    <div class="relative">
+                        <div id="userProfileToggle" class="flex items-center cursor-pointer
+                                       hover:bg-gray-100 p-2 rounded-full transition">
+                            <span class="mr-3 text-gray-700 font-medium"><?= htmlspecialchars($studentName) ?></span>
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <span
+                                    class="text-blue-600 text-sm font-bold"><?= htmlspecialchars($studentInitial) ?></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -2,7 +2,12 @@
 namespace App\Models\Student;
 
 use App\Config\DatabaseConnection;
+use App\Classes\Student;
+use App\Classes\User;
 use PDO;
+use PDOException;
+use Exception;
+
 
 class MyCoursesModel {
     private $connection;
@@ -39,5 +44,37 @@ class MyCoursesModel {
             error_log("Error fetching enrolled courses: " . $e->getMessage());
             return [];
         }
+    }
+
+    public function getStudentByUserId($userId): ?Student
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT s.id, s.education_level, u.id as user_id, u.name, u.email
+                FROM students s
+                JOIN Users u ON s.user_id = u.id
+                WHERE u.id = ? AND u.role_id = (SELECT id FROM Roles WHERE name = 'student')
+            ");
+            $stmt->execute([$userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if ($row) {
+                return new Student(
+                    $row['id'],
+                    $row['education_level'],
+                    new User(
+                        $row['user_id'],
+                        $row['name'],
+                        $row['email'],
+                        null,
+                        null,
+                        null
+                    )
+                );
+            }
+        } catch (PDOException $e) {
+            error_log("Error getting student: " . $e->getMessage());
+        }
+        return null;
     }
 }
