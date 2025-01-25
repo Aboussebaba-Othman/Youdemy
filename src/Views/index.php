@@ -3,16 +3,27 @@ require_once "../../vendor/autoload.php";
 use App\Controllers\Admin\CourseController;
 use App\Controllers\Admin\CategoryController;
 
+session_start();
+
 try {
-
     $course = new CourseController();
-    $courses = $course->index();
     $categoryController = new CategoryController();
-    $categories = $categoryController->getCategories();
-
-} catch (PDOException $e) {
+    
+    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
+    $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING);
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $result = $course->search($keyword, 1); 
+    } else {
+        $keyword = filter_input(INPUT_GET, 'keyword', FILTER_SANITIZE_STRING);
+        $result = $course->search($keyword, $page);
+    }
+    
+    $courses = $result['courses'];
+ } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
-}
+ }
+
 
 ?>
 
@@ -45,22 +56,24 @@ try {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center">
-                    <a href="/" class="flex items-center transition-transform hover:scale-105">
+                    <a href="index.php" class="flex items-center transition-transform hover:scale-105">
                         <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
                         <span class="text-2xl font-bold text-primary font-serif font-bold">Youdemy</span>
                     </a>
                 </div>
 
-                <div class="hidden md:flex items-center flex-1 px-8">
-
+                <form method="POST" action="" class="hidden md:flex items-center flex-1 px-8">
                     <div class="flex-1 px-8">
                         <div class="relative">
-                            <input type="text" placeholder="Rechercher un cours..."
-                                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-accent rounded-full focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                            <i class="fas fa-search absolute left-3 top-3 text-accent"></i>
+                            <input type="text" name="q" placeholder="Rechercher un cours..."
+                                value="<?= htmlspecialchars($result['keyword'] ?? '') ?>"
+                                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-accent rounded-full">
+                            <button type="submit" name="search" class="absolute right-3 top-2">
+                                <i class="fas fa-search text-accent"></i>
+                            </button>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="hidden md:flex items-center space-x-4">
                     <button
@@ -88,7 +101,7 @@ try {
                 <h1 class="mb-5 text-5xl font-bold">Welcome to Youdemy</h1>
                 <p class="mb-5">Revolutionize your learning experience with our interactive and personalized online
                     courses.</p>
-                <button class="btn btn-primary">Get Started</button>
+                <a href="auth/login.php"><button class="btn btn-primary">Get Started</button></a>
             </div>
         </div>
     </div>
@@ -108,43 +121,31 @@ try {
             <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <?php foreach ($courses as $course): ?>
-                <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <?php if (!empty($course['image'])): ?>
+                <div class="bg-white rounded-xl border hover:shadow-lg transition-shadow duration-300">
                     <div class="relative">
-                        <img src="<?= htmlspecialchars($course['image']) ?>"
-                            alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-48 object-cover">
-                        <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
-                            <span class="text-xs font-medium text-gray-700">
-                                <?= htmlspecialchars($course['category_name'] ?? 'General') ?>
-                            </span>
-                        </div>
+                        <img src="<?= htmlspecialchars($course['image']) ?>" class="w-full h-48 object-cover">
+                        <span class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
+                            <?= htmlspecialchars($course['category_name']) ?>
+                        </span>
                     </div>
-                    <?php endif; ?>
-
                     <div class="p-5">
-                        <div class="mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
-                                <?= htmlspecialchars($course['title']) ?>
-                            </h3>
-                            <div class="flex items-center text-gray-600 text-sm">
-                                <i class="fas fa-chalkboard-teacher text-blue-500 mr-2"></i>
-                                <?= htmlspecialchars($course['teacher_name'] ?? 'Undefined Instructor') ?>
-                            </div>
+                        <h3 class="text-xl font-semibold mb-2">
+                            <?= htmlspecialchars($course['title']) ?>
+                        </h3>
+                        <div class="flex items-center space-x-2 mb-3">
+                            <i class="fas fa-chalkboard-teacher text-primary"></i>
+                            <p class="text-sm text-gray-600">
+                                <?= htmlspecialchars($course['teacher_name']) ?>
+                            </p>
                         </div>
-
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                            <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
-                        </p>
-
-                        <div class="flex items-center text-gray-600 text-sm mb-4">
-                            <i class="fas fa-users text-blue-500 mr-2"></i>
-                            <?= $course['students_count'] ?? 0 ?> Students
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fas fa-users text-primary"></i>
+                            <span class="text-sm text-gray-600"><?= $course['students_count'] ?? 0 ?> étudiants
+                                inscrits</span>
                         </div>
-
-                        <a href="auth/login.php" class="w-full text-center block bg-blue-500 text-white 
-                                       px-4 py-2 rounded-lg text-sm 
-                                       hover:bg-blue-600 transition">
-                            View Details
+                        <a href="auth/login.php?id=<?= $course['id'] ?>"
+                            class="block w-full text-center bg-primary text-white py-2 rounded-lg hover:bg-secondary transition-colors duration-300">
+                            Voir détails
                         </a>
                     </div>
                 </div>
@@ -161,6 +162,30 @@ try {
                 </p>
             </div>
             <?php endif; ?>
+            <div class="flex justify-center items-center gap-4 mt-8">
+                <?php if($result['currentPage'] > 1): ?>
+                <a href="?keyword=<?= urlencode($keyword ?? '') ?>&page=<?= $result['currentPage'] - 1 ?>"
+                    class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 flex items-center">
+                    <i class="fas fa-chevron-left mr-2"></i> Précédent
+                </a>
+                <?php endif; ?>
+
+                <div class="flex gap-2">
+                    <?php for($i = 1; $i <= $result['totalPages']; $i++): ?>
+                    <a href="?keyword=<?= urlencode($keyword ?? '') ?>&page=<?= $i ?>"
+                        class="px-4 py-2 rounded-lg <?= $i == $result['currentPage'] ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">
+                        <?= $i ?>
+                    </a>
+                    <?php endfor; ?>
+                </div>
+
+                <?php if($result['currentPage'] < $result['totalPages']): ?>
+                <a href="?keyword=<?= urlencode($keyword ?? '') ?>&page=<?= $result['currentPage'] + 1 ?>"
+                    class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 flex items-center">
+                    Suivant <i class="fas fa-chevron-right ml-2"></i>
+                </a>
+                <?php endif; ?>
+            </div>
         </div>
     </section>
 

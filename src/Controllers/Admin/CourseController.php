@@ -18,6 +18,9 @@ class CourseController {
             return [];
         }
     }
+    
+
+    
 
     public function deleteControllerCourse($id) {
         if ($id > 0) {
@@ -48,5 +51,12 @@ class CourseController {
 
         return $data;
     }
+    public function search($keyword = '', $page = 1) {
+        if (isset($_POST['search'])) {
+            $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING);
+        }
+        $_SESSION['search_keyword'] = $keyword;
+        return $this->courseModel->searchCourses($keyword, $page);
+     }
     
 }
