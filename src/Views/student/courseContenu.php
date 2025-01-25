@@ -50,7 +50,7 @@ use App\Controllers\Student\CourseDetailController;
     </style>
 </head>
 <body class="bg-gray-50">
-<nav class="fixed w-full bg-white shadow-md z-50">
+    <nav class="fixed w-full bg-white shadow-md z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center">
@@ -99,7 +99,8 @@ use App\Controllers\Student\CourseDetailController;
                 </div>
             </div>
         </div>
-    </nav>    <main class="container mx-auto px-4 py-24">
+    </nav>    
+    <main class="container mx-auto px-4 py-24">
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <h1 class="text-3xl font-bold text-gray-800">

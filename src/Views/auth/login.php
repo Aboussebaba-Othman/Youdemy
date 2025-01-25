@@ -27,8 +27,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <link rel="stylesheet" href="https://cdn.tailwindcss.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#a435f0',
+                    secondary: '#1c1d1f',
+                }
+            }
+        }
+    }
+    </script>
+    
+    <style>
+        .nav-hover:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        .form-container {
+            background: linear-gradient(to right, #ffffff 0%, #f9f5ff 100%);
+            box-shadow: 0 10px 25px rgba(164, 53, 240, 0.1);
+            transition: all 0.3s ease;
+        }
+        .form-container:hover {
+            box-shadow: 0 15px 35px rgba(164, 53, 240, 0.15);
+        }
+        .input-focus:focus {
+            border-color: #a435f0;
+            box-shadow: 0 0 0 3px rgba(164, 53, 240, 0.1);
+            outline: none;
+        }
+    </style>
 </head>
 <body>
     <?php if (!empty($error_message)): ?>
@@ -36,6 +67,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="block sm:inline"><?php echo htmlspecialchars($error_message); ?></span>
         </div>
     <?php endif; ?>
+    <nav class="fixed w-full bg-base-300 shadow-lg z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <a href="../index.php" class="flex items-center transition-transform hover:scale-105">
+                        <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
+                        <span class="text-2xl font-bold text-primary font-serif font-bold">Youdemy</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center flex-1 px-8">
+
+                    <div class="flex-1 px-8">
+                        <div class="relative">
+                            <input type="text" placeholder="Rechercher un cours..."
+                                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-accent rounded-full focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                            <i class="fas fa-search absolute left-3 top-3 text-accent"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <button
+                        class="px-4 py-2 text-secondary hover:text-primary transition-colors duration-200 hover:bg-base-200 rounded-md"><a
+                            href="auth/login.php">Login</a></button>
+                    <button
+                        class="px-6 py-2 bg-primary text-base-300 rounded-full hover:bg-secondary transition-colors duration-200 shadow-md hover:shadow-lg"><a
+                            href="auth/register.php">Register</a></button>
+                </div>
+
+                <div class="md:hidden">
+                    <button class="text-primary hover:text-secondary transition-colors" id="mobile-menu-button">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <section class="bg-gray-50 dark:bg-gray-800 min-h-screen flex items-center justify-center">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">

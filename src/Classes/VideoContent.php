@@ -12,3 +12,5 @@ class VideoContent extends CourseContent {
                 </div>';
     }
 }
+
+
