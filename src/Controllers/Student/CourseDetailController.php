@@ -7,31 +7,34 @@ class CourseDetailController {
         $this->detailCourseModel = new CourseDetailModel();
     }
     public function getCourseDetails($courseId) {
-       
-            $courseDetails = $this->detailCourseModel->getCourseById($courseId);
-           
-            $courseContent = $this->detailCourseModel->getCourseContent($courseId);
-            
-            $teacherDetails = $this->detailCourseModel->getTeacherByCourseId($courseId);
-            $courseSkills = $this->detailCourseModel->getCourseSkills($courseId);
-            
-            $isLoggedIn = $this->isLoggedIn();
-            $isEnrolled = false;
-            
-            if ($isLoggedIn) {
-                $userId = $this->getUserId();
-                $isEnrolled = $this->detailCourseModel->isUserEnrolled($courseId, $userId);
-            }
-
-            return [
-                'course' => $courseDetails,
-                'teacher' => $teacherDetails,
-                'skills' => $courseSkills,
-                'content' => $courseContent,
-                'isLoggedIn' => $isLoggedIn,
-                'isEnrolled' => $isEnrolled
-            ];
+        $courseDetails = $this->detailCourseModel->getCourseById($courseId);
+        $courseContent = $this->detailCourseModel->getCourseContent($courseId);
+        $teacherDetails = $this->detailCourseModel->getTeacherByCourseId($courseId);
+        $courseSkills = $this->detailCourseModel->getCourseSkills($courseId);
         
+        $isLoggedIn = $this->isLoggedIn();
+        $isEnrolled = false;
+        $enrolledCourses = [];
+        
+        if ($isLoggedIn) {
+            $userId = $this->getUserId();
+            
+            // Utilisons le MyCoursesModel pour obtenir tous les cours
+            $myCoursesModel = new \App\Models\Student\MyCoursesModel();
+            $enrolledCourses = $myCoursesModel->getEnrolledCourses($userId);
+            
+            $isEnrolled = $this->detailCourseModel->isUserEnrolled($courseId, $userId);
+        }
+        
+        return [
+            'course' => $courseDetails,
+            'teacher' => $teacherDetails,
+            'skills' => $courseSkills,
+            'content' => $courseContent,
+            'isLoggedIn' => $isLoggedIn,
+            'isEnrolled' => $isEnrolled,
+            'enrolledCourses' => $enrolledCourses
+        ];
     }
 
     public function isLoggedIn(): bool {

@@ -3,11 +3,11 @@ session_start();
 require_once "../../../vendor/autoload.php";
 
 use App\Controllers\Student\CourseDetailController;
-
+use App\Models\Student\MyCoursesModel;
 
     $courseId = $_GET['id'] ?? null;
 
-
+    $MyCoursesModel = new MyCoursesModel();
     $controller = new CourseDetailController();
     $data = $controller->getCourseDetails($courseId);
 
@@ -17,19 +17,29 @@ use App\Controllers\Student\CourseDetailController;
     $isLoggedIn = $data['isLoggedIn'];
     $isEnrolled = $data['isEnrolled'];
 
+    if (isset($_SESSION['user_id'])) {
+        $student = $MyCoursesModel->getStudentByUserId($_SESSION['user_id']);
+        
+        if ($student !== null) {
+            $studentName = $student->getUser()->getName();
+            
+            $studentInitial = strtoupper(substr($studentName, 0, 1));
+        }
+    }
 
 ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Youdemy - <?= htmlspecialchars($course['title']) ?></title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <script>
     tailwind.config = {
         theme: {
@@ -42,26 +52,29 @@ use App\Controllers\Student\CourseDetailController;
         }
     }
     </script>
-    
+
     <style>
-        .course-detail-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .course-detail-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-        .skill-badge {
-            transition: transform 0.3s ease;
-        }
-        .skill-badge:hover {
-            transform: scale(1.05);
-        }
+    .course-detail-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .course-detail-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .skill-badge {
+        transition: transform 0.3s ease;
+    }
+
+    .skill-badge:hover {
+        transform: scale(1.05);
+    }
     </style>
 </head>
 
 <body class="bg-gray-50">
-<nav class="fixed w-full bg-white shadow-md z-50">
+    <nav class="fixed w-full bg-white shadow-md z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center">
@@ -84,22 +97,23 @@ use App\Controllers\Student\CourseDetailController;
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            placeholder="Rechercher un cours..." 
-                            class="pl-8 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                        >
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    </div>
+                    <form method="POST" action="" class="relative">
+                        <input type="text" name="q" value="<?= htmlspecialchars($keyword ?? '') ?>"
+                            placeholder="Rechercher un cours..."
+                            class="pl-8 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full">
 
-                    <div class="flex items-center space-x-3">
-                        <a href="../auth/login.php" class="px-4 py-2 text-secondary hover:text-primary nav-hover">
-                            Connexion
-                        </a>
-                        <a href="../auth/register.php" class="px-6 py-2 bg-primary text-white rounded-full hover:bg-secondary glow-hover transition-colors">
-                            S'inscrire
-                        </a>
+                    </form>
+
+
+                    <div class="relative">
+                        <div class="flex items-center">
+                            <div class="avatar online mr-3">
+                                <div class="w-10 rounded-full">
+                                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($studentName) ?>" />
+                                </div>
+                            </div>
+                            <span class="text-gray-700 font-medium"><?= htmlspecialchars($studentName) ?></span>
+                        </div>
                     </div>
                 </div>
 
@@ -128,85 +142,97 @@ use App\Controllers\Student\CourseDetailController;
                             </span>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 p-8">
-                <div>
-                    <img 
-                        src="<?= htmlspecialchars($course['image']) ?>" 
-                        alt="<?= htmlspecialchars($course['title']) ?>" 
-                        class="w-full h-96 object-cover rounded-2xl shadow-lg transform transition hover:scale-105"
-                    >
-                </div>
+
 
                 <div>
+
                     <div class="mb-8">
-                        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Description</h2>
-                        <p class="text-gray-600 leading-relaxed">
-                            <?= nl2br(htmlspecialchars($course['description'])) ?>
-                        </p>
-                    </div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                            <?= htmlspecialchars($course['title']) ?>
+                        </h1>
 
-                    <div class="bg-gray-50 p-6 rounded-2xl mb-8">
-                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Instructeur</h3>
-                        <div class="flex items-center">
-                            <div class="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl mr-6">
-                                <?= strtoupper(substr($teacher['name'], 0, 1)) ?>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($teacher['name']) ?></h4>
-                                <p class="text-gray-600 text-sm flex items-center">
-                                    <i class="fas fa-envelope mr-2"></i>
-                                    <?= htmlspecialchars($teacher['email']) ?>
-                                </p>
-                                <p class="text-gray-600 text-sm">
-                                    <?= htmlspecialchars($teacher['specialty']) ?>
-                                </p>
+                        <div class="relative rounded-2xl overflow-hidden mb-6">
+                            <img src="<?= htmlspecialchars($course['image']) ?>"
+                                alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-[400px] object-cover">
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-2xl mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Instructeur</h3>
+                            <div class="flex items-center">
+                                <div
+                                    class="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl mr-6">
+                                    <?= strtoupper(substr($teacher['name'], 0, 1)) ?>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900">
+                                        <?= htmlspecialchars($teacher['name']) ?></h4>
+                                    <p class="text-gray-600 text-sm flex items-center">
+                                        <i class="fas fa-envelope mr-2"></i>
+                                        <?= htmlspecialchars($teacher['email']) ?>
+                                    </p>
+                                    <p class="text-gray-600 text-sm">
+                                        <?= htmlspecialchars($teacher['specialty']) ?>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    
-                    <div>
-                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Compétences Acquises</h3>
-                        <div class="flex flex-wrap gap-3">
-                            <?php foreach ($skills as $skill): ?>
-                                <span class="skill-badge bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-200">
+
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Compétences Acquises</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <?php foreach ($skills as $skill): ?>
+                                <span
+                                    class="skill-badge bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-200">
                                     <?= htmlspecialchars($skill) ?>
                                 </span>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="bg-white rounded-2xl shadow-lg p-8 overflow-y-auto max-h-[800px]">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Description Détaillée</h2>
+                    <div class="prose prose-lg text-gray-700 leading-relaxed">
+                        <?= nl2br(htmlspecialchars($course['description'])) ?>
+                    </div>
+                </div>
 
-            
-            <div class="p-8 border-t border-gray-200">
-                <?php if ($isLoggedIn): ?>
+
+                <div class="p-8 border-t border-gray-200">
+                    <?php if ($isLoggedIn): ?>
                     <?php if ($isEnrolled): ?>
-                        <button disabled class="w-full bg-green-500 text-white py-4 rounded-lg cursor-not-allowed flex items-center justify-center">
-                            <i class="fas fa-check mr-3"></i>
-                            Déjà inscrit
-                        </button>
+                    <button disabled
+                        class="w-full bg-green-500 text-white py-4 rounded-lg cursor-not-allowed flex items-center justify-center">
+                        <i class="fas fa-check mr-3"></i>
+                        Déjà inscrit
+                    </button>
                     <?php else: ?>
-                        <form action="enroll.php" method="POST">
-                            <input type="hidden" name="course_id" value="<?= $course['id'] ?>">
-                            <button type="submit" class="w-full bg-primary text-white py-4 rounded-lg hover:bg-secondary transition duration-300 flex items-center justify-center">
-                                <i class="fas fa-graduation-cap mr-3"></i>
-                                S'inscrire au cours
-                            </button>
-                        </form>
+                    <form action="enroll.php" method="POST">
+                        <input type="hidden" name="course_id" value="<?= $course['id'] ?>">
+                        <input type="hidden" name="course_title" value="<?= htmlspecialchars($course['title']) ?>">
+                        <button type="submit"
+                            class="w-full bg-primary text-white py-4 rounded-lg hover:bg-secondary transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-graduation-cap mr-3"></i>
+                            S'inscrire au cours
+                        </button>
+                    </form>
                     <?php endif; ?>
-                <?php else: ?>
-                    <a href="/auth/login.php" class="w-full bg-primary text-white py-4 rounded-lg hover:bg-secondary transition duration-300 flex items-center justify-center">
+                    <?php else: ?>
+                    <a href="/auth/login.php"
+                        class="w-full bg-primary text-white py-4 rounded-lg hover:bg-secondary transition duration-300 flex items-center justify-center">
                         <i class="fas fa-sign-in-alt mr-3"></i>
                         Connectez-vous pour vous inscrire
                     </a>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
-        </div>
+        </DIV>
     </section>
 
     <footer class="bg-secondary text-base-300 py-12">
@@ -256,4 +282,5 @@ use App\Controllers\Student\CourseDetailController;
         </div>
     </footer>
 </body>
+
 </html>

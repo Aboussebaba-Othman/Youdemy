@@ -4,22 +4,22 @@ use App\Controllers\Admin\CourseController;
 use App\Controllers\Admin\CategoryController;
 
 session_start();
+$course = new CourseController();
+$courses = $course->index();
+$statistics = $course->getDashboardData();
 
-try {
-    $course = new CourseController();
+ try {
     $categoryController = new CategoryController();
     
     $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
-    $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING);
+    $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING); 
+    $categoryId = filter_input(INPUT_POST, 'category', FILTER_SANITIZE_NUMBER_INT);
     
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $result = $course->search($keyword, 1); 
-    } else {
-        $keyword = filter_input(INPUT_GET, 'keyword', FILTER_SANITIZE_STRING);
-        $result = $course->search($keyword, $page);
-    }
+    $categories = $categoryController->getCategories();
     
+    $result = $course->search($keyword, $categoryId, $page);
     $courses = $result['courses'];
+ 
  } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
  }
@@ -119,38 +119,81 @@ try {
             </div>
 
             <?php if (isset($courses) && is_array($courses) && count($courses) > 0): ?>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <?php foreach ($courses as $course): ?>
-                <div class="bg-white rounded-xl border hover:shadow-lg transition-shadow duration-300">
-                    <div class="relative">
-                        <img src="<?= htmlspecialchars($course['image']) ?>" class="w-full h-48 object-cover">
-                        <span class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
-                            <?= htmlspecialchars($course['category_name']) ?>
-                        </span>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-xl font-semibold mb-2">
-                            <?= htmlspecialchars($course['title']) ?>
-                        </h3>
-                        <div class="flex items-center space-x-2 mb-3">
-                            <i class="fas fa-chalkboard-teacher text-primary"></i>
-                            <p class="text-sm text-gray-600">
-                                <?= htmlspecialchars($course['teacher_name']) ?>
-                            </p>
-                        </div>
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i class="fas fa-users text-primary"></i>
-                            <span class="text-sm text-gray-600"><?= $course['students_count'] ?? 0 ?> étudiants
-                                inscrits</span>
-                        </div>
-                        <a href="auth/login.php?id=<?= $course['id'] ?>"
-                            class="block w-full text-center bg-primary text-white py-2 rounded-lg hover:bg-secondary transition-colors duration-300">
-                            Voir détails
-                        </a>
-                    </div>
-                </div>
-                <?php endforeach; ?>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <?php foreach ($courses as $course): ?>
+    <div class="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-md flex flex-col">
+        <div class="relative">
+            <img 
+                src="<?= htmlspecialchars($course['image']) ?>" 
+                alt="<?= htmlspecialchars($course['title']) ?>"
+                class="w-full h-56 object-cover"
+            >
+            <span class="absolute top-4 right-4 
+                         bg-primary text-white 
+                         px-3 py-1 rounded-full 
+                         text-sm font-medium">
+                <?= htmlspecialchars($course['category_name']) ?>
+            </span>
+        </div>
+
+        <div class="p-6 flex flex-col flex-grow">
+            <h3 class="text-xl font-bold text-secondary mb-3 line-clamp-2">
+                <?= htmlspecialchars($course['title']) ?>
+            </h3>
+
+            <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
+                <?= htmlspecialchars(substr($course['description'], 0, 150) . '...') ?>
+            </p>
+
+            <div class="flex items-center space-x-3 mb-3">
+                <i class="fas fa-chalkboard-teacher text-primary"></i>
+                <p class="text-sm text-gray-600">
+                    <?= htmlspecialchars($course['teacher_name']) ?>
+                </p>
             </div>
+
+            <div class="flex items-center space-x-3 mb-4">
+                <i class="fas fa-users text-primary"></i>
+                <span class="text-sm text-gray-600">
+                    <?= $course['student_count'] ?? 0 ?> étudiants inscrits
+                </span>
+            </div>
+
+            <div class="mt-auto pt-4 border-t">
+                <a 
+                    href="auth/login.php?id=<?= $course['id'] ?>"
+                    class="block w-full text-center 
+                           px-6 py-3 
+                           bg-primary text-white 
+                           rounded-lg 
+                           transition duration-300 
+                           ease-in-out 
+                           hover:bg-primary-dark 
+                           flex items-center 
+                           justify-center 
+                           space-x-2"
+                >
+                    <span>Voir détails</span>
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        class="h-5 w-5" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                    >
+                        <path 
+                            stroke-linecap="round" 
+                            stroke-linejoin="round" 
+                            stroke-width="2" 
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
             <?php else: ?>
             <div class="text-center bg-white p-12 rounded-xl shadow-md">
                 <i class="fas fa-graduation-cap text-5xl text-blue-500 mb-4"></i>
@@ -293,25 +336,55 @@ try {
         </div>
     </section>
 
-    <section class="py-12 bg-secondary text-white">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold mb-8 text-center">Youdemy in Numbers</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div>
-                    <p class="text-4xl font-bold">100,000+</p>
-                    <p class="text-xl mt-2">Students</p>
+    <section class="py-16 bg-secondary text-white relative overflow-hidden">
+    <div class="container mx-auto px-4 relative z-10">
+        <h2 class="text-4xl font-bold mb-12 text-center">
+            <span class="text-primary">Youdemy</span> en Chiffres
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-3xl text-primary"></i>
                 </div>
-                <div>
-                    <p class="text-4xl font-bold">1,000+</p>
-                    <p class="text-xl mt-2">Courses</p>
+                <h3 class="text-4xl font-bold mb-2 text-primary" id="studentCount">
+                    <?= number_format($statistics['total_students']) ?>
+                </h3>
+                <p class="text-lg text-gray-300">Étudiants</p>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-book-open text-3xl text-primary"></i>
                 </div>
-                <div>
-                    <p class="text-4xl font-bold">500+</p>
-                    <p class="text-xl mt-2">Expert Instructors</p>
+                <h3 class="text-4xl font-bold mb-2 text-primary" id="courseCount">
+                    <?= number_format($statistics['total_courses']) ?>
+                </h3>
+                <p class="text-lg text-gray-300">Cours Disponibles</p>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chalkboard-teacher text-3xl text-primary"></i>
                 </div>
+                <h3 class="text-4xl font-bold mb-2 text-primary" id="teacherCount">
+                    <?= number_format($statistics['total_teachers']) ?>
+                </h3>
+                <p class="text-lg text-gray-300">Instructeurs</p>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-folder text-3xl text-primary"></i>
+                </div>
+                <h3 class="text-4xl font-bold mb-2 text-primary" id="categoryCount">
+                    <?= number_format($statistics['total_category']) ?>
+                </h3>
+                <p class="text-lg text-gray-300">Catégories</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <section class="py-12 bg-primary text-white">
         <div class="container mx-auto px-4 text-center">

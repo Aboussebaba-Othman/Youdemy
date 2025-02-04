@@ -95,26 +95,17 @@ class CategoryModel {
     public function deleteCategory($id) {
         try {
             $this->connection->beginTransaction();
-
-            $checkQuery = "SELECT COUNT(*) FROM courses WHERE category_id = :id";
-            $checkStmt = $this->connection->prepare($checkQuery);
-            $checkStmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $checkStmt->execute();
-            
-            if ($checkStmt->fetchColumn() > 0) {
-                throw new Exception("Cannot delete category: It has associated courses");
-            }
-
-            $query = "DELETE FROM categories WHERE id = :id";
-            $stmt = $this->connection->prepare($query);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            
-            $result = $stmt->execute();
-            
-            if (!$result) {
-                throw new Exception("Failed to delete category");
-            }
-
+    
+            $updateQuery = "UPDATE courses SET category_id = NULL WHERE category_id = :id";
+            $updateStmt = $this->connection->prepare($updateQuery);
+            $updateStmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $updateStmt->execute();
+    
+            $deleteQuery = "DELETE FROM categories WHERE id = :id";
+            $deleteStmt = $this->connection->prepare($deleteQuery);
+            $deleteStmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $deleteStmt->execute();
+    
             $this->connection->commit();
             return true;
         } catch (PDOException $e) {
@@ -125,4 +116,5 @@ class CategoryModel {
             throw $e;
         }
     }
+    
 }

@@ -5,26 +5,15 @@ use App\Controllers\Admin\CategoryController;
 use App\Models\Student\MyCoursesModel;
 
 session_start();
+$course = new CourseController();
+$courses = $course->index();
+$categoryController = new CategoryController();
+$MyCoursesModel = new MyCoursesModel();
+
+    
 
 try {
-    $course = new CourseController();
-    $categoryController = new CategoryController();
-    $MyCoursesModel = new MyCoursesModel();
-    
-    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
-    $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING);
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $result = $course->search($keyword, 1); 
-    } else {
-        $keyword = filter_input(INPUT_GET, 'keyword', FILTER_SANITIZE_STRING);
-        $result = $course->search($keyword, $page);
-    }
-    
-    $courses = $result['courses'];
- } catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
- }
+   
  if (isset($_SESSION['user_id'])) {
     $student = $MyCoursesModel->getStudentByUserId($_SESSION['user_id']);
     
@@ -33,7 +22,20 @@ try {
         
         $studentInitial = strtoupper(substr($studentName, 0, 1));
     }
-}
+    }
+    
+    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
+    $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING); 
+    $categoryId = filter_input(INPUT_POST, 'category', FILTER_SANITIZE_NUMBER_INT);
+    
+    $categories = $categoryController->getCategories();
+    
+    $result = $course->search($keyword, $categoryId, $page);
+    $courses = $result['courses'];
+ 
+ } catch (PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+ }
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +49,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    
     <script>
     tailwind.config = {
         theme: {
@@ -79,57 +81,102 @@ try {
 </head>
 
 <body class="bg-gray-50">
-    <nav class="fixed w-full bg-white shadow-md z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center">
-                    <a href="" class="flex items-center nav-hover">
-                        <i class="fas fa-graduation-cap text-primary text-2xl mr-2"></i>
-                        <span class="text-2xl font-bold text-primary font-serif">Youdemy</span>
-                    </a>
-                </div>
+<nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-md z-50 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center">
+                <a href="" class="flex items-center group">
+                    <i class="fas fa-graduation-cap text-primary text-2xl mr-2 
+                              transition-transform group-hover:rotate-12"></i>
+                    <span class="text-2xl font-bold text-transparent bg-clip-text 
+                                 bg-gradient-to-r from-primary to-purple-600 
+                                 group-hover:from-purple-600 group-hover:to-primary 
+                                 transition-all duration-300">
+                        Youdemy
+                    </span>
+                </a>
+            </div>
 
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="../index.php" class="text-secondary hover:text-primary transition-colors nav-hover">
-                        <i class="fas fa-home mr-2"></i>Accueil
-                    </a>
-                    <a href="courseCatalog.php" class="text-secondary hover:text-primary transition-colors nav-hover">
-                        <i class="fas fa-book-open mr-2"></i>Catalogue des Cours
-                    </a>
-                    <a href="myCourses.php" class="text-secondary hover:text-primary transition-colors nav-hover">
-                        <i class="fas fa-graduation-cap mr-2"></i>Mes Cours
-                    </a>
-                </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="../index.php" class="text-secondary hover:text-primary 
+                                               transition-all duration-300 
+                                               flex items-center 
+                                               group">
+                    <i class="fas fa-home mr-2 
+                              group-hover:text-primary 
+                              transition-colors"></i>
+                    Accueil
+                </a>
+                <a href="courseCatalog.php" class="text-secondary hover:text-primary 
+                                                   transition-all duration-300 
+                                                   flex items-center 
+                                                   group">
+                    <i class="fas fa-book-open mr-2 
+                              group-hover:text-primary 
+                              transition-colors"></i>
+                    Catalogue des Cours
+                </a>
+                <a href="myCourses.php" class="text-secondary hover:text-primary 
+                                               transition-all duration-300 
+                                               flex items-center 
+                                               group">
+                    <i class="fas fa-graduation-cap mr-2 
+                              group-hover:text-primary 
+                              transition-colors"></i>
+                    Mes Cours
+                </a>
+            </div>
 
-                <div class="hidden md:flex items-center space-x-4">
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="relative group">
                     <form method="POST" action="" class="relative">
-                        <input type="text" name="q" value="<?= htmlspecialchars($keyword ?? '') ?>"
+                        <input 
+                            type="text" 
+                            name="q" 
+                            value="<?= htmlspecialchars($keyword ?? '') ?>"
                             placeholder="Rechercher un cours..."
-                            class="pl-8 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full">
-            
+                            class="pl-10 pr-4 py-2 
+                                   bg-gray-100 
+                                   border-2 border-transparent 
+                                   rounded-full 
+                                   focus:border-primary 
+                                   focus:ring-2 focus:ring-primary/30 
+                                   transition-all duration-300 
+                                   w-64"
+                        >
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 
+                                  text-gray-500 group-focus-within:text-primary 
+                                  transition-colors duration-300"></i>
                     </form>
+                </div>
 
-
-                    <div class="relative">
-                        <div id="userProfileToggle" class="flex items-center cursor-pointer
-                                       hover:bg-gray-100 p-2 rounded-full transition">
-                            <span class="mr-3 text-gray-700 font-medium"><?= htmlspecialchars($studentName) ?></span>
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                <span
-                                    class="text-blue-600 text-sm font-bold"><?= htmlspecialchars($studentInitial) ?></span>
-                            </div>
+                <div class="flex items-center space-x-3">
+                    <div class="avatar online">
+                        <div class="w-12 h-12 rounded-full ring-2 ring-primary/30 ring-offset-2">
+                            <img 
+                                src="https://ui-avatars.com/api/?name=<?= urlencode($studentName) ?>" 
+                                alt="<?= htmlspecialchars($studentName) ?>"
+                                class="rounded-full object-cover"
+                            />
                         </div>
                     </div>
-                </div>
-
-                <div class="md:hidden">
-                    <button class="text-primary hover:text-secondary" id="mobile-menu-button">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
+                    <div>
+                        <span class="text-gray-800 font-semibold text-base block">
+                            <?= htmlspecialchars($studentName) ?>
+                        </span>
+                        <span class="text-gray-500 text-xs">Étudiant</span>
+                    </div>
                 </div>
             </div>
+
+            <div class="md:hidden">
+                <button class="text-primary hover:text-secondary transition-colors" id="mobile-menu-button">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
         </div>
-    </nav>
+    </div>
+</nav>
     <section id="catalog" class="py-24 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
@@ -145,49 +192,50 @@ try {
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <?php if (!empty($courses)): ?>
                 <?php foreach ($courses as $course): ?>
-                <div class="course-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-lg">
-                    <?php if (!empty($course['image'])): ?>
-                    <div class="relative">
-                        <img src="<?= htmlspecialchars($course['image']) ?>"
-                            alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-56 object-cover">
-                        <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
-                            <span class="text-xs font-medium text-gray-700">
-                                <?= htmlspecialchars($course['category_name'] ?? 'Général') ?>
-                            </span>
-                        </div>
-                    </div>
-                    <?php endif; ?>
+                    <div class="course-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-lg flex flex-col">
+    <?php if (!empty($course['image'])): ?>
+    <div class="relative">
+        <img src="<?= htmlspecialchars($course['image']) ?>"
+            alt="<?= htmlspecialchars($course['title']) ?>" class="w-full h-56 object-cover">
+        <div class="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full">
+            <span class="text-xs font-medium text-gray-700">
+                <?= htmlspecialchars($course['category_name'] ?? 'Général') ?>
+            </span>
+        </div>
+    </div>
+    <?php endif; ?>
 
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-3">
-                            <?= htmlspecialchars($course['title']) ?>
-                        </h3>
+    <div class="p-6 flex flex-col flex-grow">
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">
+            <?= htmlspecialchars($course['title']) ?>
+        </h3>
 
-                        <div class="flex items-center text-gray-600 text-sm mb-3">
-                            <i class="fas fa-chalkboard-teacher text-primary mr-2"></i>
-                            <?= htmlspecialchars($course['teacher_name'] ?? 'Instructeur non défini') ?>
-                        </div>
+        <div class="flex items-center text-gray-600 text-sm mb-3">
+            <i class="fas fa-chalkboard-teacher text-primary mr-2"></i>
+            <?= htmlspecialchars($course['teacher_name'] ?? 'Instructeur non défini') ?>
+        </div>
 
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                            <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
-                        </p>
+        <p class="text-gray-600 text-sm mb-4 flex-grow line-clamp-3">
+            <?= htmlspecialchars($course['short_description'] ?? $course['description']) ?>
+        </p>
 
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center text-gray-600 text-sm">
-                                <i class="fas fa-users text-primary mr-2"></i>
-                                <?= $course['students_count'] ?? 0 ?> Étudiants
-                            </div>
-                            <span class="text-sm font-semibold text-primary">
-                                <?= htmlspecialchars($course['price'] ?? 'Gratuit') ?>
-                            </span>
-                        </div>
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center text-gray-600 text-sm">
+                <i class="fas fa-users text-primary mr-2"></i>
+                <?= $course['student_count'] ?? 0 ?> Étudiants
+            </div>
+            <span class="text-sm font-semibold text-primary">
+                <?= htmlspecialchars($course['price'] ?? 'Gratuit') ?>
+            </span>
+        </div>
 
-                        <a href="courseDetail.php?id=<?= $course['id'] ?>" class="w-full block text-center bg-primary text-white px-4 py-3 rounded-lg 
-                                           hover:bg-secondary transition-colors">
-                            Voir les détails
-                        </a>
-                    </div>
-                </div>
+        <a href="courseDetail.php?id=<?= $course['id'] ?>" 
+           class="w-full block text-center bg-primary text-white px-4 py-3 rounded-lg 
+                  hover:bg-secondary transition-colors mt-auto">
+            Voir les détails
+        </a>
+    </div>
+</div>
                 <?php endforeach; ?>
                 <?php else: ?>
 

@@ -42,12 +42,12 @@ class StudentController
         ];
     }
 
-    private function getTeacher()
-    {
-        if (isset($_SESSION['user_id'])) {
-            return $this->courseModel->getTeacherByUserId($_SESSION['user_id']);
+    // private function getTeacher()
+    // {
+    //     if (isset($_SESSION['user_id'])) {
+    //         return $this->courseModel->getTeacherByUserId($_SESSION['user_id']);
             
-        }
-        return null;
-    }
+    //     }
+    //     return null;
+    // }
 }

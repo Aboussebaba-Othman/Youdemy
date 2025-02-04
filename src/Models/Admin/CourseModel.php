@@ -16,55 +16,51 @@ class CourseModel {
         }
     }
 
-    public function getCourses($page = 1, $perPage = 6) {
+    public function getCourses() {
         try {
-            $offset = ($page - 1) * $perPage;
-            
             $query = "
                 SELECT
-                    c.id, c.title, c.description, c.image,
+                    c.id,
+                    c.title,
+                    c.description,
+                    c.image,
                     u.name AS teacher_name,
                     cat.title AS category_name,
-                    COUNT(e.student_id) AS students_count,
-                    (SELECT COUNT(*) FROM Courses) as total_count
+                    COUNT(DISTINCT e.student_id) as student_count
                 FROM Courses c
                 LEFT JOIN Teachers t ON c.teacher_id = t.id
                 LEFT JOIN Users u ON t.user_id = u.id
                 LEFT JOIN Categories cat ON c.category_id = cat.id
                 LEFT JOIN Enrollment e ON c.id = e.course_id
-                GROUP BY c.id, c.title, c.description, c.image, u.name, cat.title
-                LIMIT :limit OFFSET :offset
-            ";
+                GROUP BY c.id, c.title, c.description, c.image, u.name, cat.title";
             
             $stmt = $this->connection->prepare($query);
-            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); 
             $stmt->execute();
-            $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $totalPages = ceil($courses[0]['total_count'] / $perPage);
-            
-            return [
-                'courses' => $courses,
-                'currentPage' => $page,
-                'totalPages' => $totalPages
-            ];
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             throw new \Exception("Error fetching courses: " . $e->getMessage());
         }
-     }
-    
+    }
 
     public function deleteCourse($id) {
         try {
+            $this->connection->beginTransaction();
+    
+            $stmt = $this->connection->prepare("DELETE FROM Enrollment WHERE course_id = :id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+    
             $stmt = $this->connection->prepare("DELETE FROM Courses WHERE id = :id");
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
+    
+            $this->connection->commit();
     
             if ($stmt->rowCount() === 0) {
                 throw new \Exception("No course found with the provided ID.");
             }
         } catch (PDOException $e) {
+            $this->connection->rollBack();
             throw new \Exception("Error deleting course: " . $e->getMessage());
         }
     }
@@ -126,64 +122,70 @@ class CourseModel {
         throw new \Exception("Error fetching top categories: " . $e->getMessage());
     }
 }
-public function searchCourses($keyword = '', $page = 1) {
-    try {
-        $perPage = 6;
-        $offset = ($page - 1) * $perPage;
-
-        // Base query
-        $sql = "SELECT c.*, cat.title as category_name, u.name as teacher_name,
-                COUNT(e.student_id) as students_count
-                FROM courses c
-                LEFT JOIN teachers t ON c.teacher_id = t.id
-                LEFT JOIN users u ON t.user_id = u.id
-                LEFT JOIN categories cat ON c.category_id = cat.id
-                LEFT JOIN enrollment e ON c.id = e.course_id";
-
-        // Add search condition if keyword exists
-        if (!empty($keyword)) {
-            $sql .= " WHERE c.title LIKE :keyword";
-        }
-
-        // Add grouping and pagination
-        $sql .= " GROUP BY c.id, c.title, c.description, c.image, u.name, cat.title
-                  LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->connection->prepare($sql);
-        
-        if (!empty($keyword)) {
-            $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
-        }
-        
-        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Get total count for pagination
-        $countSql = "SELECT COUNT(DISTINCT c.id) FROM courses c";
-        if (!empty($keyword)) {
-            $countSql .= " WHERE c.title LIKE :keyword";
-            $countStmt = $this->connection->prepare($countSql);
-            $countStmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
-        } else {
-            $countStmt = $this->connection->prepare($countSql);
-        }
-        
-        $countStmt->execute();
-        $totalCount = $countStmt->fetchColumn();
-        $totalPages = ceil($totalCount / $perPage);
-
-        return [
-            'courses' => $courses,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'keyword' => $keyword
-        ];
-        
-    } catch (PDOException $e) {
-        throw new Exception("Error fetching courses: " . $e->getMessage());
+public function searchCourses($keyword = '', $categoryId = null, $page = 1) {
+    $perPage = 6;
+    $offset = ($page - 1) * $perPage;
+    
+    $sql = "SELECT c.*, cat.title as category_name, u.name as teacher_name,
+            COUNT(DISTINCT e.student_id) as student_count
+            FROM courses c
+            LEFT JOIN categories cat ON c.category_id = cat.id
+            LEFT JOIN teachers t ON c.teacher_id = t.id
+            LEFT JOIN users u ON t.user_id = u.id
+            LEFT JOIN Enrollment e ON c.id = e.course_id
+            WHERE 1=1";
+    
+    $params = [];
+    
+    if (!empty($keyword)) {
+        $sql .= " AND c.title LIKE :keyword";
+        $params[':keyword'] = "%$keyword%";
     }
+    
+    if (!empty($categoryId)) {
+        $sql .= " AND c.category_id = :category_id";
+        $params[':category_id'] = $categoryId;
+    }
+    
+    $sql .= " GROUP BY c.id, c.title, c.description, c.image, cat.title, u.name";
+    
+    $countSql = "SELECT COUNT(DISTINCT c.id) as count FROM courses c WHERE 1=1";
+    if (!empty($keyword)) {
+        $countSql .= " AND c.title LIKE :keyword";
+    }
+    if (!empty($categoryId)) {
+        $countSql .= " AND c.category_id = :category_id";
+    }
+    
+    $totalStmt = $this->connection->prepare($countSql);
+    $totalStmt->execute($params);
+    $totalRecords = $totalStmt->fetch()['count'];
+    
+    $sql .= " LIMIT :limit OFFSET :offset";
+    $stmt = $this->connection->prepare($sql);
+    
+    foreach($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return [
+        'courses' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+        'currentPage' => $page,
+        'totalPages' => ceil($totalRecords / $perPage),
+        'keyword' => $keyword
+    ];
+}
+
+
+
+public function getTotalCategories() {
+    $sql = "SELECT COUNT(*) FROM Categories";
+    $stmt = $this->connection->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchColumn();
 }
 }

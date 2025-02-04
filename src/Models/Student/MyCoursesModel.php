@@ -77,4 +77,36 @@ class MyCoursesModel {
         }
         return null;
     }
+    public function unenrollCourse($courseId, $userId) {
+        try {
+            $this->connection->beginTransaction();
+    
+            $sql = "SELECT id FROM Students WHERE user_id = :user_id";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute(['user_id' => $userId]);
+            $studentId = $stmt->fetchColumn();
+    
+            if (!$studentId) {
+                throw new \Exception("Étudiant non trouvé");
+            }
+    
+            $sql = "DELETE FROM Enrollment 
+                    WHERE student_id = :student_id 
+                    AND course_id = :course_id";
+                    
+            $stmt = $this->connection->prepare($sql);
+            $result = $stmt->execute([
+                'student_id' => $studentId,
+                'course_id' => $courseId
+            ]);
+    
+            $this->connection->commit();
+            return true;
+    
+        } catch (\PDOException $e) {
+            $this->connection->rollBack();
+            error_log("Erreur lors de la désinscription : " . $e->getMessage());
+            throw new \Exception("Impossible d'annuler l'inscription");
+        }
+    }
 }

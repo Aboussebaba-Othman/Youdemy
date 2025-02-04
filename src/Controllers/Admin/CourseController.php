@@ -45,18 +45,20 @@ class CourseController {
         $data['total_users'] = $this->courseModel->getTotalUsers();
         $data['total_teachers'] = $this->courseModel->getTotalTeachers();
         $data['total_students'] = $this->courseModel->getTotalStudents();
-
         $data['top_teachers'] = $this->courseModel->getTopTeachers();
         $data['top_category'] = $this->courseModel->getTopCategories();
+        $data['total_category'] = $this->courseModel->getTotalCategories();
 
         return $data;
     }
-    public function search($keyword = '', $page = 1) {
-        if (isset($_POST['search'])) {
-            $keyword = filter_input(INPUT_POST, 'q', FILTER_SANITIZE_STRING);
-        }
-        $_SESSION['search_keyword'] = $keyword;
-        return $this->courseModel->searchCourses($keyword, $page);
-     }
+    public function search($keyword = '', $categoryId = null, $page = 1) {
+   if (isset($_POST['category'])) {
+       $categoryId = filter_input(INPUT_POST, 'category', FILTER_SANITIZE_NUMBER_INT);
+   }
+   return $this->courseModel->searchCourses($keyword, $categoryId, $page);
+}
+
+
+
     
 }

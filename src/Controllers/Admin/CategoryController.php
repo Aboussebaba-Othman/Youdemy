@@ -57,7 +57,6 @@ class CategoryController {
                 throw new Exception("Category ID is required");
             }
             
-            // Check if category exists before deleting
             $category = $this->categoryModel->getCategoryById($id);
             if (!$category) {
                 throw new Exception("Category not found");

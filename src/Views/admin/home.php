@@ -9,124 +9,140 @@ try {
     echo "Connection failed: " . $e->getMessage();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Youdemy - Tableau de Bord Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        DEFAULT: '#a435f0',
+                        light: '#c661f3',
+                        dark: '#7a2cc0'
+                    },
+                    secondary: {
+                        DEFAULT: '#1c1d1f',
+                        light: '#2c2d33'
+                    }
+                }
+            }
+        }
+    }
+    </script>
     <style>
-    .hover-lift {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .hover-lift:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a435f0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a2cc0;
+        }
     </style>
 </head>
-
-<body class="bg-gray-50 font-sans">
-    <div class="flex h-screen">
-        <div class="w-64 bg-white shadow-md">
-            <div class="p-5 border-b">
-                <h1 class="text-2xl font-bold text-blue-600">Youdemy Admin</h1>
+<body class="bg-gray-50 antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <div class="w-64 bg-white shadow-xl border-r overflow-y-auto flex flex-col h-screen">
+            <div class="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+                <h1 class="text-2xl font-bold text-primary">Youdemy Admin</h1>
             </div>
-            <nav class="mt-4">
-                <a href="" class="flex items-center px-4 py-3 hover:bg-blue-50 text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-tachometer-alt mr-3"></i>
-                    <span>Tableau de Bord</span>
+
+            <nav class="mt-2 flex-grow">
+                <?php 
+         $currentPath = basename(dirname($_SERVER['PHP_SELF']));
+
+         $menuItems = [
+            ['icon' => 'tachometer-alt', 'label' => 'Tableau de Bord', 'link' => '../admin/home.php', 'path' => 'home'],
+            ['icon' => 'users', 'label' => 'Gestion Utilisateurs', 'link' => '../admin/user/home.php', 'path' => 'user'],
+            ['icon' => 'book', 'label' => 'Gestion Cours', 'link' => '../admin/cour/home.php', 'path' => 'cour'],
+            ['icon' => 'tags', 'label' => 'Gestion Tags', 'link' => '../admin/tag/home.php', 'path' => 'tag'],
+            ['icon' => 'folder', 'label' => 'Gestion Catégories', 'link' => '../admin/categorie/home.php', 'path' => 'categorie'],
+            ['icon' => 'user-check', 'label' => 'Validation Enseignants', 'link' => '../admin/validation/home.php', 'path' => 'validation']
+         ];
+
+         foreach ($menuItems as $item):
+            $isActive = $currentPath === $item['path'];
+         ?>
+                <a href="<?= $item['link'] ?>" class="block px-6 py-3 transition-all duration-300 <?= $isActive 
+                ? 'bg-primary text-white font-medium border-l-4 border-yellow-400' 
+                : 'text-gray-700 hover:bg-primary/5 hover:text-primary' ?>">
+                    <i class="fas fa-<?= $item['icon'] ?> w-6 mr-3"></i>
+                    <span><?= $item['label'] ?></span>
                 </a>
-                <a href="user/home.php"
-                    class="flex items-center px-4 py-3 hover:bg-blue-50 text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-users w-6"></i>
-                    <span>Gestion Utilisateurs</span>
-                </a>
-                <a href="cour/home.php"
-                    class="flex items-center px-4 py-3 hover:bg-blue-50 text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-book w-6"></i>
-                    <span>Gestion Cours</span>
-                </a>
-                <a href="tag/home.php"
-                    class="flex items-center px-4 py-3 hover:bg-blue-50 text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-tags w-6"></i>
-                    <span>Gestion Tags</span>
-                </a>
-                <a href="categorie/home.php"
-                    class="flex items-center px-4 py-3 hover:bg-blue-50 text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-folder w-6"></i>
-                    <span>Gestion Catégories</span>
-                </a>
-                <a href="validation/home.php"
-                    class="flex items-center px-4 py-3 hover:bg-blue-50 text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-user-check w-6"></i>
-                    <span>Validation Enseignants</span>
-                </a>
+                <?php endforeach; ?>
             </nav>
+
+            <div class="border-t border-gray-200"></div>
+
+            <a href="../auth/login.php"
+                class="px-6 py-4 flex items-center text-red-500 hover:bg-red-50 transition-colors duration-300 group">
+                <i
+                    class="fas fa-sign-out-alt w-6 mr-3 group-hover:-translate-x-1 transition-transform duration-300"></i>
+                <span class="font-medium">Déconnexion</span>
+            </a>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-8 bg-gray-50">
-            <header class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-800">Tableau de Bord</h2>
-                <div class="flex items-center">
-                    <input type="text" placeholder="Rechercher..."
-                        class="px-4 py-2 border rounded-lg mr-4 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                            <span class="text-blue-600 text-sm font-bold">A</span>
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-sm border-b">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <h2 class="text-xl font-semibold text-secondary">Tableau de Bord</h2>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-primary">
+                                <i class="fas fa-bell"></i>
+                            </button>
+                            <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
                         </div>
-                        <span class="text-gray-700 font-medium">Admin</span>
+                        
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+                                <span class="text-primary text-sm font-bold">A</span>
+                            </div>
+                            <span class="text-secondary">Admin</span>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <div class="grid grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-md hover-lift border-l-4 border-blue-500">
+            <div class="p-6 grid grid-cols-4 gap-6">
+                <?php 
+                $stats = [
+                    ['label' => 'Total Cours', 'value' => $data['total_courses'], 'icon' => 'book', 'color' => 'blue'],
+                    ['label' => 'Utilisateurs', 'value' => $data['total_users'], 'icon' => 'users', 'color' => 'green'],
+                    ['label' => 'Enseignants', 'value' => $data['total_teachers'], 'icon' => 'chalkboard-teacher', 'color' => 'purple'],
+                    ['label' => 'Étudiants', 'value' => $data['total_students'], 'icon' => 'graduation-cap', 'color' => 'yellow']
+                ];
+
+                foreach ($stats as $stat):
+                ?>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition border-l-4 border-<?= $stat['color'] ?>-500">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-gray-500 mb-2">Total Cours</h3>
-                            <p class="text-3xl font-bold text-gray-800"><?= $data['total_courses'] ?></p>
+                            <h3 class="text-gray-500 mb-2"><?= $stat['label'] ?></h3>
+                            <p class="text-3xl font-bold text-secondary"><?= $stat['value'] ?></p>
                         </div>
-                        <i class="fas fa-book text-blue-500 text-4xl opacity-50"></i>
+                        <i class="fas fa-<?= $stat['icon'] ?> text-<?= $stat['color'] ?>-500 text-4xl opacity-50"></i>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-md hover-lift border-l-4 border-green-500">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="text-gray-500 mb-2">Utilisateurs</h3>
-                            <p class="text-3xl font-bold text-gray-800"><?= $data['total_users'] ?></p>
-                        </div>
-                        <i class="fas fa-users text-green-500 text-4xl opacity-50"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md hover-lift border-l-4 border-purple-500">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="text-gray-500 mb-2">Enseignants</h3>
-                            <p class="text-3xl font-bold text-gray-800"><?= $data['total_teachers'] ?></p>
-                        </div>
-                        <i class="fas fa-chalkboard-teacher text-purple-500 text-4xl opacity-50"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md hover-lift border-l-4 border-yellow-500">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="text-gray-500 mb-2">Étudiants</h3>
-                            <p class="text-3xl font-bold text-gray-800"><?= $data['total_students'] ?></p>
-                        </div>
-                        <i class="fas fa-graduation-cap text-yellow-500 text-4xl opacity-50"></i>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
 
-            <div class="grid grid-cols-3 gap-8">
+            <div class="p-6 grid grid-cols-3 gap-8">
                 <div class="bg-white p-6 rounded-xl shadow-md col-span-2">
-                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Top 3 Enseignants</h3>
+                    <h3 class="text-xl font-semibold mb-4 text-secondary">Top 3 Enseignants</h3>
                     <table class="w-full">
                         <thead>
                             <tr class="bg-gray-100">
@@ -137,7 +153,7 @@ try {
                         </thead>
                         <tbody>
                             <?php foreach ($data['top_teachers'] as $teacher): ?>
-                            <tr class="border-b hover:bg-gray-50 transition">
+                            <tr class="border-b hover:bg-primary/5 transition">
                                 <td class="p-3"><?= htmlspecialchars($teacher['teacher_name']) ?></td>
                                 <td class="p-3 text-center"><?= $teacher['total_courses'] ?></td>
                                 <td class="p-3 text-center"><?= $teacher['total_students'] ?></td>
@@ -146,20 +162,17 @@ try {
                         </tbody>
                     </table>
                 </div>
+
                 <div class="bg-white p-6 rounded-xl shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Top Catégories</h3>
+                    <h3 class="text-xl font-semibold mb-4 text-secondary">Top Catégories</h3>
                     <div class="space-y-3">
                         <?php foreach ($data['top_category'] as $category): ?>
-                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-3">
+                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-3 hover:bg-primary/10 transition">
                             <div class="flex items-center">
-                                <span class="w-2 h-2 rounded-full mr-3 
-                                        <?php 
-                                        $colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-red-500'];
-                                        echo $colors[array_rand($colors)];
-                                        ?>">
+                                <span class="w-2 h-2 rounded-full mr-3 bg-primary"></span>
+                                <span class="font-medium text-secondary">
+                                    <?= htmlspecialchars($category['category_name']) ?>
                                 </span>
-                                <span
-                                    class="font-medium text-gray-700"><?= htmlspecialchars($category['category_name']) ?></span>
                             </div>
                             <span class="text-gray-600"><?= $category['total_courses'] ?> cours</span>
                         </div>
@@ -169,7 +182,5 @@ try {
             </div>
         </div>
     </div>
-
 </body>
-
 </html>

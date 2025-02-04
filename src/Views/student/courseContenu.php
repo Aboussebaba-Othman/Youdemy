@@ -1,27 +1,48 @@
 <?php
 session_start();
 require_once "../../../vendor/autoload.php";
-
+use App\Models\Student\MyCoursesModel;
 use App\Controllers\Student\CourseDetailController;
-    $courseId = $_GET['id'] ;
-    $controller = new CourseDetailController();
-    $data = $controller->getCourseDetails($courseId);
-    $course = $data['course'];         
-    $content = $data['content'];       
-    $teacher = $data['teacher'];       
-    $skills = $data['skills'];       
+
+
+$courseId = $_GET['id'] ;
+$controller = new CourseDetailController();
+
+$data = $controller->getCourseDetails($courseId);
+$enrolledCourses = $data['enrolledCourses'] ?? []; 
+
+$course = $data['course'];         
+$content = $data['content'];       
+$teacher = $data['teacher'];       
+$skills = $data['skills'];
+
+
+$MyCoursesModel = new MyCoursesModel();
+
+if (isset($_SESSION['user_id'])) {
+    $student = $MyCoursesModel->getStudentByUserId($_SESSION['user_id']);
+    
+    if ($student !== null) {
+        $studentName = $student->getUser()->getName();
+        $studentInitial = strtoupper(substr($studentName, 0, 1));
+    }
+}   
+
+
 ?>
+
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youdemy - Catalogue de Cours</title>
-    
+    <title>Youdemy - Contenu de Cours</title>
+
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <script>
     tailwind.config = {
         theme: {
@@ -34,21 +55,92 @@ use App\Controllers\Student\CourseDetailController;
         }
     }
     </script>
-    
+
     <style>
-        .nav-hover:hover {
-            transform: scale(1.05);
-            transition: transform 0.3s ease;
+    .course-content {
+        background: linear-gradient(to right, #ffffff, #f8f8ff);
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(164, 53, 240, 0.1);
+    }
+
+    .course-header {
+        background: linear-gradient(120deg, #a435f0, #8435f0);
+        padding: 2rem;
+        border-radius: 1rem 1rem 0 0;
+        color: white;
+    }
+
+    .course-description {
+        line-height: 1.8;
+        color: #4a5568;
+    }
+
+    .instructor-card {
+        background: linear-gradient(to right, #f9fafb, #f3f4f6);
+        border-left: 4px solid #a435f0;
+        transition: all 0.3s ease;
+    }
+
+    .instructor-card:hover {
+        box-shadow: -5px 5px 15px rgba(164, 53, 240, 0.1);
+    }
+
+    .skill-badge {
+        transition: all 0.3s ease;
+        cursor: default;
+    }
+
+    .skill-badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 10px rgba(164, 53, 240, 0.2);
+    }
+
+    /* Style pour la sidebar */
+    .sidebar {
+        position: sticky;
+        top: 6rem;
+        height: calc(100vh - 8rem);
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-header {
+        background: linear-gradient(135deg, #a435f0, #8435f0);
+    }
+
+    .course-list-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .course-list-item:hover {
+        border-left-color: #a435f0;
+        background-color: rgba(164, 53, 240, 0.05);
+    }
+
+    .course-list-item.active {
+        border-left-color: #a435f0;
+        background-color: rgba(164, 53, 240, 0.1);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
-        .course-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .course-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
     </style>
 </head>
+
 <body class="bg-gray-50">
     <nav class="fixed w-full bg-white shadow-md z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,25 +162,27 @@ use App\Controllers\Student\CourseDetailController;
                     <a href="myCourses.php" class="text-secondary hover:text-primary transition-colors nav-hover">
                         <i class="fas fa-graduation-cap mr-2"></i>Mes Cours
                     </a>
+                    
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            placeholder="Rechercher un cours..." 
-                            class="pl-8 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                        >
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    </div>
+                    <form method="POST" action="" class="relative">
+                        <input type="text" name="q" value="<?= htmlspecialchars($keyword ?? '') ?>"
+                            placeholder="Rechercher un cours..."
+                            class="pl-8 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full">
 
-                    <div class="flex items-center space-x-3">
-                        <a href="../auth/login.php" class="px-4 py-2 text-secondary hover:text-primary nav-hover">
-                            Connexion
-                        </a>
-                        <a href="../auth/register.php" class="px-6 py-2 bg-primary text-white rounded-full hover:bg-secondary glow-hover transition-colors">
-                            S'inscrire
-                        </a>
+                    </form>
+
+
+                    <div class="relative">
+                        <div class="flex items-center">
+                            <div class="avatar online mr-3">
+                                <div class="w-10 rounded-full">
+                                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($studentName) ?>" />
+                                </div>
+                            </div>
+                            <span class="text-gray-700 font-medium"><?= htmlspecialchars($studentName) ?></span>
+                        </div>
                     </div>
                 </div>
 
@@ -99,58 +193,157 @@ use App\Controllers\Student\CourseDetailController;
                 </div>
             </div>
         </div>
-    </nav>    
+    </nav>
     <main class="container mx-auto px-4 py-24">
-        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
-            <div class="p-6 border-b border-gray-200">
-                <h1 class="text-3xl font-bold text-gray-800">
-                    <?= htmlspecialchars($course['title']) ?>
-                </h1>
-                <div class="mt-2 text-gray-600">
-                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                        <?= htmlspecialchars($course['category_name']) ?>
-                    </span>
+        <div class="flex gap-8">
+            <div class="w-3/4 animate-fade-in">
+                <div class="course-content">
+                    <div class="course-header">
+                        <h1 class="text-3xl font-bold mb-4">
+                            <?= htmlspecialchars($course['title']) ?>
+                        </h1>
+                        <span class="inline-flex items-center px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                            <i class="fas fa-folder-open mr-2"></i>
+                            <?= htmlspecialchars($course['category_name']) ?>
+                        </span>
+                    </div>
+
+                    <div class="p-8 space-y-10">
+                        <div class="bg-gray-50 rounded-xl">
+                            <?php if ($content): ?>
+                            <?= $content->render() ?>
+                            <?php else: ?>
+                            <div class="flex items-center justify-center p-8 text-gray-500">
+                                <i class="fas fa-clock text-4xl mr-4"></i>
+                                <p>Contenu en cours de préparation...</p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="course-description">
+                            <h2 class="text-2xl font-semibold mb-6">
+                                <i class="fas fa-info-circle text-primary mr-2"></i>
+                                Description du cours
+                            </h2>
+                            <div class="prose prose-lg max-w-none">
+                                <?= nl2br(htmlspecialchars($course['description'])) ?>
+                            </div>
+                        </div>
+
+                        <div class="instructor-card rounded-xl p-6">
+                            <h3 class="text-xl font-semibold mb-6">
+                                <i class="fas fa-chalkboard-teacher text-primary mr-2"></i>
+                                Votre instructeur
+                            </h3>
+                            <div class="flex items-center">
+                                <div
+                                    class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center text-primary text-3xl font-bold">
+                                    <?= strtoupper(substr($teacher['name'], 0, 1)) ?>
+                                </div>
+                                <div class="ml-6">
+                                    <h4 class="text-xl font-semibold"><?= htmlspecialchars($teacher['name']) ?></h4>
+                                    <p class="text-gray-600"><?= htmlspecialchars($teacher['specialty']) ?></p>
+                                    <p class="text-gray-500 mt-2">
+                                        <i class="fas fa-envelope text-primary mr-2"></i>
+                                        <?= htmlspecialchars($teacher['email']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold mb-6">
+                                <i class="fas fa-star text-primary mr-2"></i>
+                                Compétences à acquérir
+                            </h3>
+                            <div class="flex flex-wrap gap-3">
+                                <?php foreach ($skills as $skill): ?>
+                                <span
+                                    class="skill-badge px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                                    <?= htmlspecialchars($skill) ?>
+                                </span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="p-6">
-                <?php if ($content): ?>
-                    <?= $content->render() ?>
-                <?php else: ?>
-                    <div class="alert alert-warning">
-                        <p>Contenu non disponible.</p>
-                    </div>
-                <?php endif; ?>
-
-                <div class="mt-8">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Description</h2>
-                    <p class="text-gray-600">
-                        <?= nl2br(htmlspecialchars($course['description'])) ?>
-                    </p>
-                </div>
-
-                <div class="mt-8 bg-gray-50 p-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Instructeur</h3>
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl mr-4">
-                            <?= strtoupper(substr($teacher['name'], 0, 1)) ?>
-                        </div>
-                        <div>
-                            <h4 class="text-lg font-semibold"><?= htmlspecialchars($teacher['name']) ?></h4>
-                            <p class="text-gray-600 text-sm"><?= htmlspecialchars($teacher['email']) ?></p>
-                            <p class="text-gray-600 text-sm"><?= htmlspecialchars($teacher['specialty']) ?></p>
+            <div class="w-1/3">
+                <div
+                    class="bg-white shadow-xl  sticky top-24 border border-gray-100 flex flex-col h-[calc(100vh-120px)] rounded-xl">
+                    
+                    <div class="course-header ">
+                        <h2 class="text-2xl font-bold mb-2">Mes Cours</h2>
+                        <div class="flex items-center text-white/90">
+                            <i class="fas fa-book-open mr-2"></i>
+                            <p class="text-sm">
+                                <?= count($enrolledCourses) ?> cours inscrits
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Compétences Acquises</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <?php foreach ($skills as $skill): ?>
-                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                                <?= htmlspecialchars($skill) ?>
-                            </span>
+                    <div class="flex-1 overflow-y-auto sidebar-scroll min-h-0">
+                        <?php if (!empty($enrolledCourses)): ?>
+                        <?php foreach ($enrolledCourses as $course): ?>
+                        <a href="courseContenu.php?id=<?= $course['id'] ?>"
+                            class="block hover:bg-gray-50 transition-all duration-300">
+                            <div class="p-4 border-b group
+                            <?= $course['id'] == $courseId 
+                                ? 'bg-primary/5 border-l-4 border-primary' 
+                                : 'border-l-4 border-transparent hover:border-primary/30' ?>">
+                                <div class="flex gap-4">
+                                    <div
+                                        class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden shadow-sm flex-shrink-0">
+                                        <?php if (!empty($course['image'])): ?>
+                                        <img src="<?= htmlspecialchars($course['image']) ?>" alt=""
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                        <?php else: ?>
+                                        <div class="w-full h-full flex items-center justify-center bg-primary/10">
+                                            <i class="fas fa-book text-primary text-xl"></i>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0 space-y-2">
+                                        <h3 class="font-medium text-gray-900 leading-tight line-clamp-2">
+                                            <?= htmlspecialchars($course['title']) ?>
+                                        </h3>
+
+                                        <p class="text-sm text-gray-500 flex items-center">
+                                            <i class="fas fa-user-tie text-primary/70 mr-2"></i>
+                                            <?= htmlspecialchars($course['teacher_name']) ?>
+                                        </p>
+
+                                        <div class="flex items-center">
+                                            <span
+                                                class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium">
+                                                <?= htmlspecialchars($course['category_name']) ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                         <?php endforeach; ?>
+                        <?php else: ?>
+                        <div class="h-full flex items-center justify-center p-8">
+                            <div class="text-center">
+                                <div
+                                    class="w-20 h-20 bg-primary/10 rounded-full mx-auto flex items-center justify-center mb-4">
+                                    <i class="fas fa-book-open text-primary text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun cours inscrit</h3>
+                                <p class="text-gray-500 mb-4">Commencez votre parcours d'apprentissage dès maintenant !
+                                </p>
+                                <a href="courseCatalog.php"
+                                    class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Explorer les cours
+                                </a>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -203,4 +396,5 @@ use App\Controllers\Student\CourseDetailController;
         </div>
     </footer>
 </body>
+
 </html>

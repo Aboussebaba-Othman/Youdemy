@@ -51,18 +51,19 @@ class StatisticModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getTop3Students($teacherId): array
+    public function getTop3Students($teacherId): array 
     {
         $sql = "SELECT 
-                    u.name, 
-                    COUNT(DISTINCT e.course_id) AS course_count
-                FROM users u
-                JOIN enrollment e ON u.id = e.student_id
-                JOIN courses c ON e.course_id = c.id
-                WHERE c.teacher_id = :teacher_id
-                GROUP BY u.id, u.name
-                ORDER BY course_count DESC
-                LIMIT 3";
+    u.name,
+    COUNT(e.course_id) as course_count
+    FROM Users u
+    JOIN Students s ON u.id = s.user_id
+    JOIN Enrollment e ON s.id = e.student_id
+    JOIN Courses c ON e.course_id = c.id
+    WHERE c.teacher_id = :teacher_id
+    GROUP BY u.id, u.name
+    ORDER BY course_count DESC
+    LIMIT 3";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['teacher_id' => $teacherId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
